@@ -1,0 +1,149 @@
+<div class="dashboard">
+    <div class="page-header">
+      <h1 class="page-title">Tableau de bord</h1>
+      <p class="page-subtitle">Bienvenue au système de gestion ONCF</p>
+    </div>
+    
+    <!-- Statistics Cards -->
+    <div class="stats-grid">
+      <!-- Lettres Sommation (Billet) Stats -->
+      <div class="app-card">
+        <div class="card-header">
+          <h2 class="card-title">Lettres (Billet)</h2>
+          <i class="fas fa-file-alt card-icon"></i>
+        </div>
+        
+        <div class="card-total">
+          <span class="label">Total</span>
+          <span class="value">{{stats.lettresBillet.total}}</span>
+        </div>
+        
+        <div class="card-stats">
+          <div class="stat-box stat-success">
+            <div class="stat-label">Régularisées</div>
+            <div class="stat-value">{{stats.lettresBillet.regularisees}}</div>
+          </div>
+          
+          <div class="stat-box stat-danger">
+            <div class="stat-label">Non Régularisées</div>
+            <div class="stat-value">{{stats.lettresBillet.nonRegularisees}}</div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Lettres Sommation (Carte) Stats -->
+      <div class="app-card">
+        <div class="card-header">
+          <h2 class="card-title">Lettres (Carte)</h2>
+          <i class="fas fa-credit-card card-icon"></i>
+        </div>
+        
+        <div class="card-total">
+          <span class="label">Total</span>
+          <span class="value">{{stats.lettresCarte.total}}</span>
+        </div>
+        
+        <div class="card-stats">
+          <div class="stat-box stat-success">
+            <div class="stat-label">Régularisées</div>
+            <div class="stat-value">{{stats.lettresCarte.regularisees}}</div>
+          </div>
+          
+          <div class="stat-box stat-danger">
+            <div class="stat-label">Non Régularisées</div>
+            <div class="stat-value">{{stats.lettresCarte.nonRegularisees}}</div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Rapports Stats -->
+      <div class="app-card">
+        <div class="card-header">
+          <h2 class="card-title">Rapports M</h2>
+          <i class="fas fa-file-signature card-icon"></i>
+        </div>
+        
+        <div class="card-total">
+          <span class="label">Total</span>
+          <span class="value">{{stats.rapports.total}}</span>
+        </div>
+        
+        <div class="card-stats reports-grid">
+          <div class="stat-box stat-warning">
+            <div class="stat-label">En Attente</div>
+            <div class="stat-value">{{stats.rapports.enAttente}}</div>
+          </div>
+          
+          <div class="stat-box stat-info">
+            <div class="stat-label">En Cours</div>
+            <div class="stat-value">{{stats.rapports.enCours}}</div>
+          </div>
+          
+          <div class="stat-box stat-success">
+            <div class="stat-label">Traités</div>
+            <div class="stat-value">{{stats.rapports.traites}}</div>
+          </div>
+          
+          <div class="stat-box stat-danger">
+            <div class="stat-label">Rejetés</div>
+            <div class="stat-value">{{stats.rapports.rejetes}}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Recent Activity and Quick Links -->
+    <div class="content-grid">
+      <!-- Recent Activity List -->
+      <div class="app-card">
+        <h2 class="card-title">Activité Récente</h2>
+        
+        <div class="activity-list">
+          <div *ngFor="let activity of recentActivities" class="activity-item">
+            <div class="activity-header">
+              <div class="activity-type">{{getTypeLabel(activity.type)}}</div>
+              <div class="activity-date">{{activity.date | date:'dd/MM/yyyy HH:mm'}}</div>
+            </div>
+            
+            <div class="activity-details">
+              <div class="activity-user">Par {{activity.user}}</div>
+              <div class="status-badge" [ngClass]="getStatusClass(activity.status)">
+                {{getStatusLabel(activity.status)}}
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="view-all">
+          <a href="#" class="view-all-link">Voir toutes les activités</a>
+        </div>
+      </div>
+      
+      <!-- Quick Links -->
+      <div class="app-card">
+        <h2 class="card-title">Actions Rapides</h2>
+        
+        <div class="quick-links">
+          <a routerLink="/lettres-sommation/billet/nouvelle" class="quick-link-box">
+            <i class="fas fa-plus-circle quick-link-icon"></i>
+            <span class="quick-link-text">Nouvelle Lettre (Billet)</span>
+          </a>
+          
+          <a routerLink="/lettres-sommation/carte/nouvelle" class="quick-link-box">
+            <i class="fas fa-plus-circle quick-link-icon"></i>
+            <span class="quick-link-text">Nouvelle Lettre (Carte)</span>
+          </a>
+          
+          <a routerLink="/rapports/nouveau" class="quick-link-box">
+            <i class="fas fa-plus-circle quick-link-icon"></i>
+            <span class="quick-link-text">Nouveau Rapport</span>
+          </a>
+          
+          <a routerLink="/statistiques" class="quick-link-box">
+            <i class="fas fa-chart-bar quick-link-icon"></i>
+            <span class="quick-link-text">Voir Statistiques</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>

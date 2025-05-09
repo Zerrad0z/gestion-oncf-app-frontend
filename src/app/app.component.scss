@@ -1,0 +1,314 @@
+.notification-container {
+    position: relative;
+  }.notification-icon {
+    font-size: 1.25rem;
+    position: relative;
+    color: #6b7280;
+  }
+  
+  .has-notifications {
+    color: var(--primary);
+  }
+  
+  .notification-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background-color: #e53e3e;
+    color: white;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    font-size: 0.7rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }.app-container {
+    display: flex;
+    height: 100vh;
+    width: 100%;
+    overflow: hidden;
+  }
+  
+  /* Sidebar Styles */
+  .sidebar {
+    width: 260px;
+    flex-shrink: 0;
+    background-color: #1e293b; /* Dark blue background */
+    color: #e2e8f0; /* Light text */
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    transition: width 0.3s ease, transform 0.3s ease;
+    z-index: 100;
+    
+    &.collapsed {
+      width: 70px;
+      
+      .sidebar-header {
+        padding: 1rem 0;
+        justify-content: center;
+      }
+      
+      .logo {
+        width: 40px;
+      }
+      
+      .user-profile, .sidebar-section-title, .sidebar-link span, .btn-logout span {
+        display: none;
+      }
+      
+      .sidebar-link, .btn-logout {
+        justify-content: center;
+        padding: 0.75rem 0;
+      }
+      
+      .sidebar-footer {
+        padding: 1rem 0;
+      }
+    }
+  }
+  
+  .sidebar-header {
+    padding: 1.25rem;
+    border-bottom: 1px solid #e5e7eb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .logo-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    .logo {
+      height: 2.5rem;
+      object-fit: contain;
+      filter: brightness(0) invert(1); /* Make the logo white */
+    }
+  }
+  
+  .user-profile {
+    padding: 1.25rem;
+    border-bottom: 1px solid #e5e7eb;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  
+  .avatar {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    background-color: #eb7c54; /* Bright blue */
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1rem;
+  }
+  
+  .btn-logout {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.625rem;
+    border-radius: 0.375rem;
+    color: #e2e8f0; /* Light text */
+    transition: all 0.2s ease;
+    background: none;
+    border: none;
+    cursor: pointer;
+    
+    i {
+      color: #94a3b8; /* Muted blue-gray for icon */
+    }
+    
+    &:hover {
+      background-color: #334155; /* Slightly lighter than sidebar for hover */
+    }
+  }
+  
+  .user-header-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-left: auto; /* Push to the far right */
+  }
+  
+  .user-header-name {
+    font-weight: 500;
+    color: #1f2937;
+    font-size: 0.95rem;
+  }
+  
+  .user-role-badge {
+    font-size: 0.7rem;
+    padding: 0.2rem 0.5rem;
+    background-color: #f1f5f9;
+    color: #64748b;
+    border-radius: 1rem;
+    font-weight: 500;
+  }
+  
+  .avatar-small {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    background-color: #3b82f6; /* Bright blue */
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 0.875rem;
+  }
+  
+  .user-info {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .user-name {
+    font-weight: 500;
+    color: #f8fafc; /* Very light gray */
+  }
+  
+  .user-role {
+    font-size: 0.75rem;
+    color: #94a3b8; /* Muted blue-gray */
+  }
+  
+  .sidebar-nav {
+    flex: 1;
+    padding: 1rem 0.75rem;
+    overflow-y: auto;
+    
+    /* Custom scrollbar for sidebar */
+    &::-webkit-scrollbar {
+      width: 4px;
+    }
+    
+    &::-webkit-scrollbar-track {
+      background: #172234; /* Darker track matching header/footer */
+    }
+    
+    &::-webkit-scrollbar-thumb {
+      background-color: #475569; /* Muted blue-gray */
+      border-radius: 4px;
+    }
+    
+    &::-webkit-scrollbar-thumb:hover {
+      background-color: #64748b; /* Lighter on hover */
+    }
+  }
+  
+  .sidebar-footer {
+    padding: 1rem;
+    border-top: 1px solid #e5e7eb;
+  }
+  
+  /* Main Content Styles */
+  .main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background-color: var(--background);
+  }
+  
+  .main-header {
+    height: 4rem;
+    background-color: white;
+    border-bottom: 1px solid #e5e7eb;
+    display: flex;
+    align-items: center;
+    padding: 0 1.25rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  }
+  
+  .menu-toggle {
+    display: none;
+    background: none;
+    border: none;
+    color: #6b7280;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 0.375rem;
+    
+    &:hover {
+      background-color: #f3f4f6;
+    }
+  }
+  
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-left: auto; /* Push everything to the right */
+  }
+  
+  /* Make the user profile in the sidebar simpler now that we moved the info to header */
+  .user-profile {
+    padding: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-bottom: 1px solid #2d3748;
+  }
+  
+  .notification-button, .profile-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 0.375rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    &:hover {
+      background-color: #f3f4f6;
+    }
+  }
+  
+  .page-content {
+    flex: 1;
+    padding: 1.5rem;
+    overflow-y: auto;
+  }
+  
+  /* Responsive Styles */
+  @media (max-width: 768px) {
+    .sidebar {
+      position: fixed;
+      left: 0;
+      top: 0;
+      transform: translateX(-100%);
+      
+      &.collapsed {
+        transform: translateX(0);
+        width: 260px;
+      }
+    }
+    
+    .menu-toggle {
+      display: block;
+    }
+    
+    .user-role-badge {
+      display: none; /* Hide role badge on mobile to save space */
+    }
+    
+    .user-header-name {
+      max-width: 120px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }

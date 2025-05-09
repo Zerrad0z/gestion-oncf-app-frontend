@@ -1,0 +1,22 @@
+// section-list.component.scss
+.section-container {
+    @apply container mx-auto px-4 py-8;
+  }
+  
+  .section-header {
+    @apply flex justify-between items-center mb-6;
+  }
+  
+  .section-title {
+    @apply text-2xl font-bold text-gray-900;
+  }
+  
+  .section-description {
+    @apply text-gray-600;
+  }
+  
+  .add-button {
+    @apply bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-md flex items-center;
+  }
+  
+  // More styles...

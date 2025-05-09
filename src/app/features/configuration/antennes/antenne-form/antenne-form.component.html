@@ -1,0 +1,89 @@
+<div class="container mx-auto px-4 py-6 max-w-2xl">
+    <!-- Header -->
+    <div class="mb-6">
+      <h1 class="text-2xl font-bold text-gray-900">{{ isEditMode ? 'Modifier' : 'Créer' }} une Antenne</h1>
+      <p class="text-gray-600 mt-1">{{ isEditMode ? 'Modifiez les détails de l\'antenne' : 'Créez une nouvelle antenne' }}</p>
+      <div class="h-1 w-20 bg-orange-500 mt-3"></div>
+    </div>
+    
+    <!-- Error message -->
+    <div *ngIf="error" class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded mb-6">
+      <div class="flex">
+        <i class="fas fa-exclamation-circle text-red-500 mt-0.5 mr-3"></i>
+        <span>{{ error }}</span>
+      </div>
+    </div>
+    
+    <!-- Loading spinner -->
+    <div *ngIf="loading" class="flex justify-center py-8">
+      <div class="animate-spin rounded-full h-10 w-10 border-t-4 border-orange-500"></div>
+    </div>
+    
+    <!-- Form -->
+    <div *ngIf="!loading" class="bg-white rounded-lg shadow-md p-6 border border-gray-200">
+      <form [formGroup]="antenneForm" (ngSubmit)="onSubmit()">
+        <!-- Nom field -->
+        <div class="mb-6">
+          <label for="nom" class="block text-gray-700 font-medium mb-2">Nom de l'antenne</label>
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <i class="fas fa-map-marker-alt text-gray-500"></i>
+            </div>
+            <input
+              type="text"
+              id="nom"
+              formControlName="nom"
+              placeholder="Entrez le nom de l'antenne"
+              class="border border-gray-300 pl-10 py-2 px-3 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+              [ngClass]="{'border-red-500 bg-red-50': submitAttempted && f['nom'].errors}"
+            >
+          </div>
+          <div *ngIf="submitAttempted && f['nom'].errors" class="mt-2 text-red-600 text-sm">
+            <div *ngIf="f['nom'].errors['required']">Le nom est obligatoire</div>
+            <div *ngIf="f['nom'].errors['minlength']">Le nom doit contenir au moins 2 caractères</div>
+            <div *ngIf="f['nom'].errors['maxlength']">Le nom ne peut pas dépasser 100 caractères</div>
+          </div>
+        </div>
+        
+        <!-- Section field -->
+        <div class="mb-6">
+          <label for="sectionId" class="block text-gray-700 font-medium mb-2">Section</label>
+          <div *ngIf="loadingSections" class="flex items-center text-gray-500 text-sm">
+            <i class="fas fa-spinner fa-spin mr-2"></i> Chargement des sections...
+          </div>
+          <div class="relative" *ngIf="!loadingSections">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <i class="fas fa-sitemap text-gray-500"></i>
+            </div>
+            <select
+              id="sectionId"
+              formControlName="sectionId"
+              class="border border-gray-300 pl-10 py-2 px-3 rounded-lg w-full appearance-none bg-white focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+              [ngClass]="{'border-red-500 bg-red-50': submitAttempted && f['sectionId'].errors}"
+            >
+              <option [ngValue]="null" disabled>Sélectionnez une section</option>
+              <option *ngFor="let section of sections" [ngValue]="section.id">{{ section.nom }}</option>
+            </select>
+            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+              <i class="fas fa-chevron-down text-sm"></i>
+            </div>
+          </div>
+          <div *ngIf="submitAttempted && f['sectionId'].errors" class="mt-2 text-red-600 text-sm">
+            <div *ngIf="f['sectionId'].errors['required']">La section est obligatoire</div>
+          </div>
+        </div>
+        
+        <!-- Form actions -->
+        <div class="flex justify-end space-x-4 pt-4 border-t border-gray-200">
+          <a routerLink="/configuration/antennes" class="px-4 py-2 rounded-md border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 flex items-center">
+            <i class="fas fa-times mr-2"></i>
+            Annuler
+          </a>
+          <button type="submit" class="px-4 py-2 rounded-md bg-orange-500 text-white hover:bg-orange-600 flex items-center">
+            <i class="fas fa-{{ isEditMode ? 'check' : 'plus' }} mr-2"></i>
+            {{ isEditMode ? 'Mettre à jour' : 'Créer' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
