@@ -1,0 +1,103 @@
+<!-- src/app/features/configuration/acts/act-form/act-form.component.html -->
+<div class="container mx-auto px-4 py-8 max-w-3xl">
+  <div class="header mb-8">
+    <h1 class="text-3xl font-bold text-gray-900 mb-2">{{ isEditMode ? 'Modifier' : 'Créer' }} un agent de contrôle</h1>
+    <p class="text-gray-600 mt-1">{{ isEditMode ? 'Modifiez les informations de l\'agent' : 'Créez un nouvel agent de contrôle technique' }}</p>
+    <div class="h-1 w-24 bg-orange-500 mt-4"></div>
+  </div>
+  
+  <!-- Error message -->
+  <div *ngIf="error" class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded mb-6">
+    <div class="flex">
+      <i class="fas fa-exclamation-circle text-red-500 mt-0.5 mr-3"></i>
+      <span>{{ error }}</span>
+    </div>
+  </div>
+  
+  <!-- Loading spinner -->
+  <div *ngIf="loading" class="flex justify-center py-12">
+    <div class="animate-spin rounded-full h-12 w-12 border-t-4 border-orange-500"></div>
+  </div>
+  
+  <!-- Form -->
+  <div *ngIf="!loading" class="bg-white rounded-lg shadow-lg p-8 border border-gray-200">
+    <form [formGroup]="actForm" (ngSubmit)="onSubmit()">
+      <div class="grid grid-cols-1 gap-6">
+        <!-- Matricule -->
+        <div>
+          <label for="matricule" class="block text-sm font-medium text-gray-700 mb-1">Matricule</label>
+          <input
+            type="text"
+            id="matricule"
+            formControlName="matricule"
+            class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+            [ngClass]="{'border-red-500 bg-red-50': submitAttempted && f['matricule'].errors}"
+          >
+          <div *ngIf="submitAttempted && f['matricule'].errors" class="mt-1 text-sm text-red-600">
+            <div *ngIf="f['matricule'].errors['required']">Le matricule est obligatoire</div>
+            <div *ngIf="f['matricule'].errors['maxlength']">Le matricule ne peut pas dépasser 50 caractères</div>
+          </div>
+        </div>
+        
+        <!-- Nom et prénom -->
+        <div>
+          <label for="nomPrenom" class="block text-sm font-medium text-gray-700 mb-1">Nom et prénom</label>
+          <input
+            type="text"
+            id="nomPrenom"
+            formControlName="nomPrenom"
+            class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+            [ngClass]="{'border-red-500 bg-red-50': submitAttempted && f['nomPrenom'].errors}"
+          >
+          <div *ngIf="submitAttempted && f['nomPrenom'].errors" class="mt-1 text-sm text-red-600">
+            <div *ngIf="f['nomPrenom'].errors['required']">Le nom et prénom sont obligatoires</div>
+            <div *ngIf="f['nomPrenom'].errors['maxlength']">Le nom et prénom ne peuvent pas dépasser 100 caractères</div>
+          </div>
+        </div>
+        
+        <!-- Antenne -->
+        <div>
+          <label for="antenneId" class="block text-sm font-medium text-gray-700 mb-1">Antenne</label>
+          <div *ngIf="loadingAntennes" class="flex items-center text-gray-500 text-sm">
+            <i class="fas fa-spinner fa-spin mr-2"></i> Chargement des antennes...
+          </div>
+          <select
+            *ngIf="!loadingAntennes"
+            id="antenneId"
+            formControlName="antenneId"
+            class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white"
+            [ngClass]="{'border-red-500 bg-red-50': submitAttempted && f['antenneId'].errors}"
+          >
+            <option [ngValue]="null">Sélectionnez une antenne</option>
+            <option *ngFor="let antenne of antennes" [ngValue]="antenne.id">
+              {{ antenne.nom }} {{ antenne.sectionNom ? '(' + antenne.sectionNom + ')' : '' }}
+            </option>
+          </select>
+          <div *ngIf="submitAttempted && f['antenneId'].errors" class="mt-1 text-sm text-red-600">
+            <div *ngIf="f['antenneId'].errors['required']">L'antenne est obligatoire</div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Form actions -->
+      <div class="flex justify-end space-x-4 pt-6 mt-6 border-t border-gray-200">
+        <a 
+          routerLink="/configuration/agents" 
+          class="py-2.5 px-5 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 transition-all duration-200 flex items-center"
+        >
+          <i class="fas fa-times mr-2"></i>
+          Annuler
+        </a>
+        <button 
+          type="submit"
+          class="py-2.5 px-5 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-orange-500 hover:bg-orange-600 focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-all duration-200 flex items-center"
+          [disabled]="loading"
+        >
+          <i *ngIf="!isEditMode" class="fas fa-plus mr-2"></i>
+          <i *ngIf="isEditMode" class="fas fa-check mr-2"></i>
+          {{ isEditMode ? 'Mettre à jour' : 'Créer' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

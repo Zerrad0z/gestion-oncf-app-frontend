@@ -1,0 +1,66 @@
+<!-- src/app/features/configuration/gares/gare-form/gare-form.component.html -->
+<div class="container mx-auto px-4 py-6 max-w-2xl">
+  <div class="header mb-6">
+    <h1 class="text-2xl font-bold text-gray-900 mb-2">{{ isEditMode ? 'Modifier' : 'Créer' }} une gare</h1>
+    <p class="text-gray-600 mt-1">{{ isEditMode ? 'Modifiez les informations de la gare' : 'Ajoutez une nouvelle gare au système' }}</p>
+    <div class="h-1 w-20 bg-orange-500 mt-3"></div>
+  </div>
+  
+  <!-- Error message -->
+  <div *ngIf="error" class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded mb-6">
+    <div class="flex">
+      <i class="fas fa-exclamation-circle text-red-500 mt-0.5 mr-3"></i>
+      <span>{{ error }}</span>
+    </div>
+  </div>
+  
+  <!-- Loading spinner -->
+  <div *ngIf="loading" class="flex justify-center py-8">
+    <div class="animate-spin rounded-full h-10 w-10 border-t-4 border-orange-500"></div>
+  </div>
+  
+  <!-- Form -->
+  <div *ngIf="!loading" class="bg-white rounded-lg shadow-md p-6 border border-gray-200">
+    <form [formGroup]="gareForm" (ngSubmit)="onSubmit()">
+      <div class="mb-5">
+        <label for="nom" class="block text-sm font-medium text-gray-700 mb-1">Nom de la gare</label>
+        <div class="relative">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <i class="fas fa-subway text-gray-500"></i>
+          </div>
+          <input
+            type="text"
+            id="nom"
+            formControlName="nom"
+            placeholder="Entrez le nom de la gare"
+            class="border border-gray-300 pl-10 py-2 px-3 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+            [ngClass]="{'border-red-500 bg-red-50': submitAttempted && f['nom'].errors}"
+          >
+        </div>
+        <div *ngIf="submitAttempted && f['nom'].errors" class="mt-1 text-sm text-red-600">
+          <div *ngIf="f['nom'].errors['required']">Le nom de la gare est obligatoire</div>
+          <div *ngIf="f['nom'].errors['minlength']">Le nom de la gare doit contenir au moins 1 caractère</div>
+          <div *ngIf="f['nom'].errors['maxlength']">Le nom de la gare ne peut pas dépasser 100 caractères</div>
+        </div>
+      </div>
+      
+      <!-- Form actions -->
+      <div class="flex justify-end space-x-4 pt-4 border-t border-gray-200">
+        <a 
+          routerLink="/configuration/gares" 
+          class="py-2 px-4 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+        >
+          <i class="fas fa-times mr-2"></i>
+          Annuler
+        </a>
+        <button 
+          type="submit"
+          class="py-2 px-4 border border-transparent rounded-lg text-white bg-orange-500 hover:bg-orange-600"
+        >
+          <i class="fas fa-{{ isEditMode ? 'check' : 'plus' }} mr-2"></i>
+          {{ isEditMode ? 'Mettre à jour' : 'Créer' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

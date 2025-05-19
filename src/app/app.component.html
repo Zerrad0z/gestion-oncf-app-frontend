@@ -17,15 +17,25 @@
       
       <div class="sidebar-section-title">Gestion des lettres</div>
       
-      <a routerLink="/lettres-sommation/billet" routerLinkActive="active" class="sidebar-link">
-        <i class="fas fa-file-alt"></i>
-        <span>Lettres (Billet)</span>
-      </a>
+      <a 
+  routerLink="/lettres-sommation/billet" 
+  routerLinkActive="bg-primary-light/10 text-primary border-l-4 border-primary" 
+  class="flex items-center py-3 px-4 text-gray-700 hover:bg-gray-100 transition-colors duration-200"
+>
+  <i class="fas fa-file-alt w-6 text-center"></i>
+  <span class="ml-3">Lettres (Billet)</span>
+</a>
+
+<a 
+  routerLink="/lettres-sommation/carte" 
+  routerLinkActive="bg-primary-light/10 text-primary border-l-4 border-primary" 
+  class="flex items-center py-3 px-4 text-gray-700 hover:bg-gray-100 transition-colors duration-200"
+>
+  <i class="fas fa-credit-card w-6 text-center"></i>
+  <span class="ml-3">Lettres (Carte)</span>
+</a>
       
-      <a routerLink="/lettres-sommation/carte" routerLinkActive="active" class="sidebar-link">
-        <i class="fas fa-credit-card"></i>
-        <span>Lettres (Carte)</span>
-      </a>
+     
       
       <div class="sidebar-section-title">Rapports</div>
       
@@ -53,9 +63,9 @@
       
       <div class="sidebar-section-title">Administration</div>
       
-      <a routerLink="/utilisateurs" routerLinkActive="active" class="sidebar-link">
-        <i class="fas fa-users"></i>
-        <span>Utilisateurs</span>
+      <a routerLink="/administration/users" routerLinkActive="active" class="sidebar-link">
+      <i class="fas fa-users"></i>
+      <span>Utilisateurs</span>
       </a>
       
       <a routerLink="/statistiques" routerLinkActive="active" class="sidebar-link">

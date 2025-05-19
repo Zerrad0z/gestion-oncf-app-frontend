@@ -1,0 +1,262 @@
+<div class="container mx-auto px-4 py-6">
+  <div class="bg-white rounded-lg shadow-md border border-gray-200">
+    <!-- Header -->
+    <div class="border-b border-gray-200 px-6 py-4 flex justify-between items-center">
+      <h2 class="text-xl font-semibold text-gray-800">Lettres de Sommation (Billet)</h2>
+      <button 
+        (click)="createNew()" 
+        class="bg-primary hover:bg-primary-dark text-white font-medium py-2 px-4 rounded-md flex items-center transition-colors duration-200"
+      >
+        <i class="fas fa-plus mr-2"></i> Nouvelle Lettre
+      </button>
+    </div>
+    
+    <div class="p-6">
+      <!-- Filters -->
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-4 mb-6">
+        <div class="md:col-span-3">
+          <div class="relative">
+            <input 
+              type="text" 
+              class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary/20 pl-10"
+              placeholder="Rechercher..." 
+              [(ngModel)]="searchTerm"
+              (keyup.enter)="onSearch()"
+            >
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <i class="fas fa-search text-gray-400"></i>
+            </div>
+            <button 
+              (click)="onSearch()" 
+              class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-primary"
+            >
+              <i class="fas fa-arrow-right"></i>
+            </button>
+          </div>
+        </div>
+        
+        <div class="md:col-span-3">
+          <select 
+            [(ngModel)]="filterStatus" 
+            (change)="applyFilters()"
+            class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary/20"
+          >
+            <option [ngValue]="null">Tous les statuts</option>
+            <option *ngFor="let statut of statuts" [value]="statut">{{ statut }}</option>
+          </select>
+        </div>
+        
+        <div class="md:col-span-2">
+          <input 
+            type="date" 
+            class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary/20"
+            placeholder="Date début" 
+            [(ngModel)]="startDate"
+            (change)="applyFilters()"
+          >
+        </div>
+        
+        <div class="md:col-span-2">
+          <input 
+            type="date" 
+            class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary/20"
+            placeholder="Date fin" 
+            [(ngModel)]="endDate"
+            (change)="applyFilters()"
+          >
+        </div>
+        
+        <div class="md:col-span-2">
+          <button 
+            (click)="resetFilters()" 
+            class="w-full inline-flex justify-center items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none"
+          >
+            <i class="fas fa-redo mr-2"></i> Réinitialiser
+          </button>
+        </div>
+      </div>
+      
+      <!-- Bulk Actions -->
+      <div class="bg-white rounded-lg shadow-sm border border-gray-200 mb-6">
+        <div class="border-b border-gray-200 bg-gray-50 px-4 py-3">
+          <h3 class="text-lg font-medium text-gray-700">Actions groupées</h3>
+        </div>
+        <div class="p-4">
+          <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
+            <div class="md:col-span-4">
+              <label class="block text-sm font-medium text-gray-700 mb-1">
+                Changer le statut de {{ selectedLettres.length }} lettre(s)
+              </label>
+              <select 
+                [(ngModel)]="newStatus"
+                [disabled]="selectedLettres.length === 0"
+                class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary/20" 
+              >
+                <option [ngValue]="null">Sélectionner un statut</option>
+                <option *ngFor="let statut of statuts" [value]="statut">{{ statut }}</option>
+              </select>
+            </div>
+            
+            <div class="md:col-span-5">
+              <label class="block text-sm font-medium text-gray-700 mb-1">Commentaire</label>
+              <input 
+                type="text" 
+                [(ngModel)]="bulkComment"
+                [disabled]="selectedLettres.length === 0" 
+                placeholder="Commentaire (optionnel)" 
+                class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary/20"
+              >
+            </div>
+            
+            <div class="md:col-span-3">
+              <button 
+                (click)="updateBulkStatus()"
+                [disabled]="selectedLettres.length === 0 || !newStatus"
+                [ngClass]="{'bg-secondary hover:bg-secondary-dark text-white cursor-pointer': selectedLettres.length > 0 && newStatus, 'bg-gray-300 text-gray-500 cursor-not-allowed': selectedLettres.length === 0 || !newStatus}"
+                class="w-full flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm focus:outline-none transition-colors duration-200"
+              >
+                <i class="fas fa-edit mr-2"></i> Appliquer
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Data Table -->
+      <div class="overflow-x-auto rounded-lg shadow overflow-hidden border border-gray-200">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th scope="col" class="w-12 px-3 py-3">
+                <div class="flex items-center">
+                  <input 
+                    type="checkbox" 
+                    [checked]="selectedLettres.length === filteredLettres.length && filteredLettres.length > 0"
+                    (change)="selectAll()"
+                    class="h-4 w-4 text-primary focus:ring-primary/25 border-gray-300 rounded"
+                  >
+                </div>
+              </th>
+              <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">№ Billet</th>
+              <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Agent ACT</th>
+              <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Matricule</th>
+              <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Gare</th>
+              <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Train</th>
+              <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date Infraction</th>
+              <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Montant</th>
+              <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
+              <th scope="col" class="px-3 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <!-- Loading indicator -->
+            <tr *ngIf="loading">
+              <td colspan="10" class="px-6 py-10 text-center">
+                <div class="flex flex-col items-center justify-center">
+                  <div class="spinner-border animate-spin inline-block w-8 h-8 border-4 rounded-full text-primary border-t-transparent" role="status"></div>
+                  <span class="mt-4 text-gray-500">Chargement des données...</span>
+                </div>
+              </td>
+            </tr>
+            
+            <!-- No data message -->
+            <tr *ngIf="!loading && filteredLettres.length === 0">
+              <td colspan="10" class="px-6 py-10 text-center">
+                <div class="flex flex-col items-center justify-center">
+                  <i class="fas fa-folder-open text-gray-400 text-5xl mb-4"></i>
+                  <span class="text-gray-500">Aucune lettre de sommation trouvée</span>
+                </div>
+              </td>
+            </tr>
+            
+            <!-- Data rows -->
+            <tr *ngFor="let lettre of paginatedLettres" class="hover:bg-gray-50">
+              <td class="px-3 py-4 whitespace-nowrap">
+                <div class="flex items-center">
+                  <input 
+                    type="checkbox" 
+                    [checked]="isSelected(lettre)" 
+                    (change)="toggleSelection(lettre)"
+                    class="h-4 w-4 text-primary focus:ring-primary/25 border-gray-300 rounded"
+                  >
+                </div>
+              </td>
+              <td class="px-3 py-4 whitespace-nowrap">
+                <div class="text-sm text-gray-900">{{ lettre.numeroBillet }}</div>
+              </td>
+              <td class="px-3 py-4 whitespace-nowrap">
+                <div class="text-sm text-gray-900">{{ lettre.act?.nomPrenom }}</div>
+              </td>
+              <td class="px-3 py-4 whitespace-nowrap">
+                <div class="text-sm text-gray-500">{{ lettre.act?.matricule }}</div>
+              </td>
+              <td class="px-3 py-4 whitespace-nowrap">
+                <div class="text-sm text-gray-900">{{ lettre.gare?.nom }}</div>
+              </td>
+              <td class="px-3 py-4 whitespace-nowrap">
+                <div class="text-sm text-gray-900">{{ lettre.train?.numero }}</div>
+              </td>
+              <td class="px-3 py-4 whitespace-nowrap">
+                <div class="text-sm text-gray-500">{{ lettre.dateInfraction | date:'dd/MM/yyyy' }}</div>
+              </td>
+              <td class="px-3 py-4 whitespace-nowrap">
+                <div class="text-sm font-medium text-gray-900">{{ lettre.montantAmende }} DH</div>
+              </td>
+              <td class="px-3 py-4 whitespace-nowrap">
+                <span 
+                  [ngClass]="getStatutClass(lettre.statut)" 
+                  class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full py-1"
+                >
+                  {{ lettre.statut }}
+                </span>
+              </td>
+              <td class="px-3 py-4 whitespace-nowrap text-right text-sm font-medium">
+                <div class="flex items-center justify-end space-x-2">
+                  <button 
+                    (click)="viewDetails(lettre.id)" 
+                    class="text-secondary hover:text-secondary-dark bg-secondary/10 hover:bg-secondary/20 p-1.5 rounded-md transition-colors duration-200"
+                    title="Voir détails"
+                  >
+                    <i class="fas fa-eye"></i>
+                  </button>
+                  <button 
+                    (click)="edit(lettre.id)" 
+                    class="text-primary hover:text-primary-dark bg-primary/10 hover:bg-primary/20 p-1.5 rounded-md transition-colors duration-200"
+                    title="Modifier"
+                  >
+                    <i class="fas fa-edit"></i>
+                  </button>
+                  <button 
+                    (click)="delete(lettre.id)" 
+                    class="text-red-600 hover:text-red-800 bg-red-50 hover:bg-red-100 p-1.5 rounded-md transition-colors duration-200"
+                    title="Supprimer"
+                  >
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      
+      <!-- Pagination -->
+      <div class="mt-4" *ngIf="filteredLettres.length > 0">
+        <div class="flex justify-between items-center">
+          <div class="text-sm text-gray-700">
+            Affichage de {{ page * pageSize + 1 }} à {{ (page + 1) * pageSize > totalItems ? totalItems : (page + 1) * pageSize }} sur {{ totalItems }} entrées
+          </div>
+          
+          <mat-paginator
+            [length]="totalItems"
+            [pageSize]="pageSize"
+            [pageSizeOptions]="pageSizeOptions"
+            (page)="onPageChange($event)"
+            aria-label="Sélectionner la page"
+            class="bg-transparent shadow-none">
+          </mat-paginator>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

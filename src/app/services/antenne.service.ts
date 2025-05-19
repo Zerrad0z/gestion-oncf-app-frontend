@@ -33,7 +33,7 @@ export class AntenneService {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 
-  // Add this method for filtering antennes by section
+  // filtering antennes by section
   getAntennesBySection(sectionId: number): Observable<Antenne[]> {
     return this.http.get<Antenne[]>(`${this.apiUrl}/bysection/${sectionId}`);
   }

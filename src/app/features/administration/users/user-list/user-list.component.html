@@ -1,0 +1,206 @@
+<!-- src/app/features/administration/users/user-list/user-list.component.html -->
+<div class="container mx-auto px-4 py-8">
+  <div class="flex justify-between items-center mb-6">
+    <div>
+      <h1 class="page-title">Utilisateurs</h1>
+      <p class="page-subtitle">Gérez les utilisateurs du système</p>
+    </div>
+    <a routerLink="/administration/users/new" class="btn-primary">
+      <i class="fas fa-plus mr-2"></i>
+      Ajouter un utilisateur
+    </a>
+  </div>
+
+  <!-- Error message -->
+  <div *ngIf="error" class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded mb-6">
+    <div class="flex">
+      <i class="fas fa-exclamation-circle text-red-500 mt-0.5 mr-3"></i>
+      <span>{{ error }}</span>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="bg-white rounded-lg shadow-md p-4 mb-6">
+    <div class="flex flex-wrap items-center gap-4">
+      <div class="flex-1 min-w-[200px]">
+        <label for="search" class="block text-sm font-medium text-gray-700 mb-1">Recherche</label>
+        <div class="relative">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <i class="fas fa-search text-gray-400"></i>
+          </div>
+          <input
+            type="text"
+            id="search"
+            [(ngModel)]="searchTerm"
+            placeholder="Nom, utilisateur, email, matricule..."
+            class="border border-gray-300 pl-10 pr-3 py-2 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+          >
+        </div>
+      </div>
+      
+      <div>
+        <label for="role-filter" class="block text-sm font-medium text-gray-700 mb-1">Rôle</label>
+        <select
+          id="role-filter"
+          [(ngModel)]="roleFilter"
+          class="border border-gray-300 px-3 py-2 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white appearance-none"
+        >
+          <option value="">Tous les rôles</option>
+          <option [value]="UserRole.ADMIN">Administrateur</option>
+          <option [value]="UserRole.SUPERVISEUR">Superviseur</option>
+          <option [value]="UserRole.ENCADRANT">Encadrant</option>
+        </select>
+      </div>
+      
+      <div>
+        <label for="status-filter" class="block text-sm font-medium text-gray-700 mb-1">Statut</label>
+        <select
+          id="status-filter"
+          [(ngModel)]="statusFilter"
+          class="border border-gray-300 px-3 py-2 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white appearance-none"
+        >
+          <option value="">Tous les statuts</option>
+          <option value="ACTIF">Actif</option>
+          <option value="INACTIF">Inactif</option>
+        </select>
+      </div>
+      
+      <div class="flex items-end">
+        <button 
+          (click)="clearFilters()"
+          class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 bg-white hover:bg-gray-50"
+        >
+          <i class="fas fa-times mr-2"></i>
+          Effacer
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading spinner -->
+  <div *ngIf="loading" class="flex justify-center py-12">
+    <div class="animate-spin rounded-full h-12 w-12 border-t-4 border-orange-500"></div>
+  </div>
+
+  <!-- Empty state -->
+  <div *ngIf="!loading && users.length === 0" class="bg-white rounded-lg shadow-md p-8 text-center">
+    <i class="fas fa-users text-gray-400 text-5xl mb-4"></i>
+    <h2 class="text-xl font-medium text-gray-700 mb-2">Aucun utilisateur trouvé</h2>
+    <p class="text-gray-500 mb-6">Commencez par créer un utilisateur pour accéder au système.</p>
+    <a routerLink="/administration/users/new" class="btn-primary">
+      <i class="fas fa-plus mr-2"></i>
+      Créer un utilisateur
+    </a>
+  </div>
+
+  <!-- Empty search results -->
+  <div *ngIf="!loading && users.length > 0 && filteredUsers.length === 0" class="bg-white rounded-lg shadow-md p-8 text-center">
+    <i class="fas fa-search text-gray-400 text-5xl mb-4"></i>
+    <h2 class="text-xl font-medium text-gray-700 mb-2">Aucun résultat trouvé</h2>
+    <p class="text-gray-500 mb-6">Veuillez ajuster vos critères de recherche.</p>
+    <button (click)="clearFilters()" class="btn-primary">
+      <i class="fas fa-times mr-2"></i>
+      Effacer les filtres
+    </button>
+  </div>
+
+  <!-- User table -->
+  <div *ngIf="!loading && filteredUsers.length > 0" class="bg-white rounded-lg shadow-md overflow-hidden">
+    <table class="min-w-full divide-y divide-gray-200">
+      <thead class="bg-gray-50">
+        <tr>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            Utilisateur
+          </th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            Email
+          </th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            Rôle
+          </th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            Statut
+          </th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            Dernière connexion
+          </th>
+          <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+            Actions
+          </th>
+        </tr>
+      </thead>
+      <tbody class="bg-white divide-y divide-gray-200">
+        <tr *ngFor="let user of filteredUsers">
+          <td class="px-6 py-4 whitespace-nowrap">
+            <div class="flex items-center">
+              <div class="flex-shrink-0 h-10 w-10 bg-gray-200 rounded-full flex items-center justify-center">
+                <span class="text-gray-500 font-medium">{{ user.nomPrenom.charAt(0) }}</span>
+              </div>
+              <div class="ml-4">
+                <div class="text-sm font-medium text-gray-900">{{ user.nomPrenom }}</div>
+                <div class="text-sm text-gray-500">
+                  {{ user.nomUtilisateur }} <span class="text-gray-400">•</span> {{ user.matricule }}
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            <div class="text-sm text-gray-500">{{ user.email }}</div>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
+                  [ngClass]="{
+                    'bg-purple-100 text-purple-800': user.role === UserRole.ADMIN,
+                    'bg-blue-100 text-blue-800': user.role === UserRole.SUPERVISEUR,
+                    'bg-green-100 text-green-800': user.role === UserRole.ENCADRANT
+                  }">
+              {{ getRoleName(user.role) }}
+            </span>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            <button 
+              (click)="toggleUserStatus(user)" 
+              class="flex items-center px-2 py-1 rounded-full text-xs font-semibold"
+              [ngClass]="user.actif ? 
+                'bg-green-100 text-green-800 hover:bg-green-200' : 
+                'bg-red-100 text-red-800 hover:bg-red-200'"
+            >
+              <span class="w-2 h-2 rounded-full mr-1.5" [ngClass]="user.actif ? 'bg-green-500' : 'bg-red-500'"></span>
+              {{ user.actif ? 'Actif' : 'Inactif' }}
+            </button>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            <div class="text-sm text-gray-500">
+            {{ user.derniereConnexion ? (user.derniereConnexion | date:'dd/MM/yyyy') : 'Jamais' }}            </div>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+            <div class="flex justify-end space-x-2">
+              <a [routerLink]="['/administration/users', user.id, 'edit']" class="text-indigo-600 hover:text-indigo-900">
+                <i class="fas fa-edit"></i>
+              </a>
+              <button (click)="confirmDelete(user)" class="text-red-600 hover:text-red-900">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Delete confirmation modal -->
+  <div *ngIf="showDeleteModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-lg shadow-xl p-6 max-w-md mx-auto">
+      <h3 class="text-lg font-medium text-gray-900 mb-4">Confirmer la suppression</h3>
+      <p class="text-gray-600 mb-4">Êtes-vous sûr de vouloir supprimer l'utilisateur "{{ userToDelete?.nomPrenom }}" ?</p>
+      <div class="flex justify-end space-x-3">
+        <button (click)="cancelDelete()" class="py-2 px-4 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
+          Annuler
+        </button>
+        <button (click)="deleteUser()" class="py-2 px-4 border border-transparent rounded-md text-white bg-red-600 hover:bg-red-700">
+          Supprimer
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

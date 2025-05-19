@@ -1,0 +1,4 @@
+export enum StatutEnum {
+  REGULARISEE = 'REGULARISEE',
+  NON_REGULARISEE = 'NON REGULARISEE',
+}
