@@ -48,6 +48,55 @@ export class LettreSommationBilletFormComponent implements OnInit {
   trainSearching = false;
   trainSearchFailed = false;
   trainSearch$ = new Subject<string>();
+  // Property to toggle validation details visibility
+showValidationDetails = false;
+
+// Helper to get error messages for a control
+getControlErrors(controlName: string): string {
+  const control = this.form.get(controlName);
+  if (!control || !control.errors) return '';
+  
+  const errors: string[] = [];
+  
+  if (control.errors['required']) {
+    errors.push('Required');
+  }
+  if (control.errors['pattern']) {
+    errors.push('Invalid format');
+  }
+  if (control.errors['min']) {
+    errors.push(`Min value: ${control.errors['min'].min}`);
+  }
+  if (control.errors['max']) {
+    errors.push(`Max value: ${control.errors['max'].max}`);
+  }
+  // Add other validations as needed
+  
+  return errors.join(', ');
+}
+
+// Helper method to check form validity and highlight all invalid fields
+validateForm(): void {
+  this.markFormGroupTouched(this.form);
+  
+  // Log all validation issues to console
+  console.log('Form valid:', this.form.valid);
+  console.log('Form value:', this.form.value);
+  console.log('Form errors:', this.getFormValidationErrors());
+  
+  if (!this.form.valid) {
+    this.showValidationDetails = true;
+    alert('Le formulaire contient des erreurs. Veuillez les corriger avant de soumettre.');
+  }
+}
+
+// Optional - add a button to trigger the validation check
+checkFormValidity(): void {
+  this.validateForm();
+  
+  // Scroll to top to show validation panel
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
   
   // Dropdown data
   statuts = [StatutEnum.REGULARISEE, StatutEnum.NON_REGULARISEE]; // Only show these two options
@@ -329,49 +378,94 @@ export class LettreSommationBilletFormComponent implements OnInit {
     });
   }
 
-  /* ACT Handling */
-  onActInput(event: any): void {
-    const value = event.target.value;
-    console.log('ACT input value:', value); // Debug log
+/* ACT Handling */
+onActInput(event: any): void {
+  const value = event.target.value;
+  console.log('ACT input value:', value); // Debug log
+  
+  if (value && value.length >= 3) {
+    this.actSearching = true;
+    this.actSearchFailed = false; // Reset error state
     
-    if (value && value.length >= 3) {
-      // For matricule pattern (numbers only), immediately try to fetch the exact ACT
-      if (/^\d+$/.test(value)) {
-        this.actSearching = true;
-        console.log('Searching for ACT by matricule:', value); // Debug log
+    console.log('Searching for ACT by matricule:', value); // Debug log
+    
+    this.actService.getActByMatricule(value).subscribe({
+      next: (act) => {
+        console.log('ACT found:', act); // Debug log
         
-        this.actService.getActByMatricule(value).subscribe({
-          next: (act) => {
-            console.log('ACT found:', act); // Debug log
-            
-            if (act) {
-              // Auto-populate all ACT fields
-              this.form.patchValue({
-                act: {
-                  id: act.id,
-                  matricule: act.matricule,
-                  nomPrenom: act.nomPrenom,
-                  antenne: act.antenne
-                }
-              });
-              this.actSearching = false;
-              this.filteredActs = []; // Clear dropdown since we found what we want
+        if (act) {
+          // Auto-populate all ACT fields
+          this.form.patchValue({
+            act: {
+              id: act.id,
+              matricule: act.matricule,
+              nomPrenom: act.nomPrenom,
+              antenne: act.antenne
             }
-          },
-          error: (err) => {
-            console.error('Error fetching ACT:', err); // Debug log
-            this.actSearchFailed = true;
-            this.actSearching = false;
-            // Continue with regular search
-            this.actSearch$.next(value);
-          }
-        });
-      } else {
-        // Standard search for text input
-        this.actSearch$.next(value);
+          });
+          this.actSearching = false;
+          this.filteredActs = []; // Clear dropdown since we found what we want
+        }
+      },
+      error: (err) => {
+        this.actSearching = false;
+        this.actSearchFailed = true;
+        
+        if (err.status === 404) {
+          console.warn(`ACT with matricule ${value} not found in database`);
+          // For 404, we might want to show a specific message
+          // or continue with searching through all acts
+        } else if (err.status === 0) {
+          console.error('Network error - unable to connect to server');
+        } else {
+          console.error('Error fetching ACT:', err);
+        }
+        
+        // Fall back to searching through all acts if the direct lookup fails
+        this.searchAllActs(value);
+        
+        // Clear error after a delay
+        setTimeout(() => {
+          this.actSearchFailed = false;
+        }, 5000);
       }
-    }
+    });
+  } else {
+    // Clear results if input is too short
+    this.filteredActs = [];
   }
+}
+
+// Helper method to search through all acts
+private searchAllActs(searchTerm: string): void {
+  console.log('Falling back to searching all ACTs...');
+  
+  this.actService.getAllActs().subscribe({
+    next: (acts) => {
+      // Filter acts that match the search term in matricule or name
+      this.filteredActs = acts.filter(act => 
+        act.matricule.toLowerCase().includes(searchTerm.toLowerCase()) || 
+        act.nomPrenom.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      
+      console.log(`Found ${this.filteredActs.length} ACTs matching "${searchTerm}"`);
+      
+      if (this.filteredActs.length === 0) {
+        this.actSearchFailed = true;
+        setTimeout(() => {
+          this.actSearchFailed = false;
+        }, 5000);
+      }
+    },
+    error: (err) => {
+      console.error('Error searching all ACTs:', err);
+      this.actSearchFailed = true;
+      setTimeout(() => {
+        this.actSearchFailed = false;
+      }, 5000);
+    }
+  });
+}
   
   onActSelect(act: any): void {
     console.log('ACT selected:', act); // Debug log
@@ -386,54 +480,62 @@ export class LettreSommationBilletFormComponent implements OnInit {
     });
     this.filteredActs = []; // Clear dropdown after selection
   }
-
-  /* Train Handling */
-  onTrainGammeChange(event: any): void {
-    const gamme = event.target.value;
-    console.log('Train gamme changed:', gamme); // Debug log
-    
-    // Reset train selection
-    this.form.patchValue({
-      train: {
-        ...this.form.value.train,
-        id: null,
-        numero: '',
-        gamme: gamme
-      }
-    });
-    
-    // Load all trains and filter by the selected gamme
-    this.trainService.getAllTrains().subscribe(trains => {
-      this.filteredTrains = trains.filter(train => 
-        this.getTrainGamme(train.numero) === gamme
-      );
-      console.log('Filtered trains by gamme:', this.filteredTrains); // Debug log
-    });
+fixTrainIdFromNumero(): void {
+  const trainNumero = this.form.get('train.numero')?.value;
+  
+  if (!trainNumero) {
+    alert('Veuillez d\'abord sélectionner un train.');
+    return;
   }
   
-  onTrainInput(event: any): void {
-    const value = event.target.value;
-    if (value && value.length >= 2) {
-      this.trainSearch$.next(value);
+  console.log('Trying to fix Train ID for numero:', trainNumero);
+  
+  this.trainService.getAllTrains().subscribe({
+    next: (trains) => {
+      const matchingTrain = trains.find(t => t.numero === trainNumero);
+      
+      if (matchingTrain) {
+        console.log('Found matching train:', matchingTrain);
+        
+        // Update just the ID without changing other values
+        this.form.patchValue({
+          train: {
+            id: matchingTrain.id
+          }
+        });
+        
+        console.log('Train ID fixed to:', matchingTrain.id);
+        alert(`Train ID fixé à: ${matchingTrain.id}`);
+      } else {
+        console.log('No matching train found for numero:', trainNumero);
+        alert(`Aucun train trouvé avec le numéro: ${trainNumero}`);
+      }
+    },
+    error: (err) => {
+      console.error('Error fetching trains:', err);
+      alert('Erreur lors de la récupération des trains.');
     }
-  }
-  
-  onTrainSelect(train: any): void {
-    console.log('Train selected:', train); // Debug log
-    
-    // When a train is selected, determine its gamme
-    const gamme = this.getTrainGamme(train.numero);
-    
-    this.form.patchValue({
-      train: {
-        id: train.id,
-        numero: train.numero,
-        gamme: gamme
-      }
-    });
-    this.filteredTrains = []; // Clear dropdown after selection
-  }
+  });
+}
 
+// Manually set the train ID for testing
+manuallySetTrainId(id: number): void {
+  console.log('Manually setting Train ID to:', id);
+  
+  this.form.patchValue({
+    train: {
+      id: id
+    }
+  });
+  
+  // Verify the ID was set
+  console.log('Train ID after manual set:', this.form.get('train.id')?.value);
+  
+  // Force the form to re-validate
+  this.form.get('train')?.updateValueAndValidity();
+  
+  alert(`Train ID manuellement fixé à: ${id}`);
+}
   /* Gare Handling */
   onGareInput(event: any): void {
     const value = event.target.value;
@@ -476,89 +578,132 @@ export class LettreSommationBilletFormComponent implements OnInit {
   }
 
   /* Form Submission */
-  onSubmit(): void {
-    // Log form state for debugging
-    console.log('Form submitted, valid:', this.form.valid);
-    console.log('Form values:', this.form.value);
-    console.log('Form errors:', this.getFormValidationErrors());
+onSubmit(): void {
+  // Log form state for debugging
+  console.log('Form submitted, valid:', this.form.valid);
+  console.log('Form values:', this.form.value);
+  console.log('Form errors:', this.getFormValidationErrors());
+  
+  // Mark all fields as touched to show validation errors
+  this.markFormGroupTouched(this.form);
+  
+  if (this.form.invalid) {
+    console.error('Form is invalid. Cannot submit.');
     
-    if (this.form.invalid) {
-      alert('Veuillez remplir tous les champs obligatoires');
-      this.markFormGroupTouched(this.form);
-      return;
+    // Build a list of invalid fields to show in the alert
+    const invalidFields = [];
+    
+    // Check ACT section
+    if (this.form.get('act.id')?.invalid) invalidFields.push('Agent ID');
+    if (this.form.get('act.matricule')?.invalid) invalidFields.push('Matricule agent');
+    if (this.form.get('act.nomPrenom')?.invalid) invalidFields.push('Nom/Prénom agent');
+    
+    // Check Train section
+    if (this.form.get('train.id')?.invalid) invalidFields.push('Train ID');
+    if (this.form.get('train.numero')?.invalid) invalidFields.push('Numéro train');
+    if (this.form.get('train.gamme')?.invalid) invalidFields.push('Gamme train');
+    
+    // Check Gare section
+    if (this.form.get('gare.id')?.invalid) invalidFields.push('Gare ID');
+    if (this.form.get('gare.nom')?.invalid) invalidFields.push('Nom gare');
+    
+    // Check other fields
+    if (this.form.get('dateCreation')?.invalid) invalidFields.push('Date création');
+    if (this.form.get('dateInfraction')?.invalid) invalidFields.push('Date infraction');
+    if (this.form.get('statut')?.invalid) invalidFields.push('Statut');
+    if (this.form.get('montantAmende')?.invalid) invalidFields.push('Montant amende');
+    if (this.form.get('motifInfraction')?.invalid) invalidFields.push('Motif infraction');
+    if (this.form.get('numeroBillet')?.invalid) invalidFields.push('Numéro billet');
+    
+    // Check regularization fields if applicable
+    if (this.form.get('statut')?.value === 'REGULARISEE') {
+      if (this.form.get('dateRegularisation')?.invalid) invalidFields.push('Date régularisation');
+      if (this.form.get('numeroPiecePaiement')?.invalid) invalidFields.push('Numéro pièce paiement');
     }
     
-    this.submitting = true;
+    // Show a detailed alert
+    alert(`Veuillez remplir tous les champs obligatoires:\n\n${invalidFields.join('\n')}`);
     
-    const formData = new FormData();
-    const lettreBillet = {
-      actId: this.form.value.act.id,
-      trainId: this.form.value.train.id,
-      gareId: this.form.value.gare.id,
-      dateCreation: this.form.value.dateCreation,
-      dateInfraction: this.form.value.dateInfraction,
-      statut: this.form.value.statut,
-      montantAmende: this.form.value.montantAmende,
-      motifInfraction: this.form.value.motifInfraction,
-      numeroBillet: this.form.value.numeroBillet,
-      commentaires: this.form.value.commentaires
-    };
+    // Scroll to top to show validation panel
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    this.showValidationDetails = true;
     
-    // Add regularization info to comments if applicable
-    if (this.form.value.statut === 'REGULARISEE') {
-      const pieceInfo = this.form.value.numeroPiecePaiement 
-        ? `N° de PP: ${this.form.value.numeroPiecePaiement}` 
-        : '';
-        
-      const dateInfo = this.form.value.dateRegularisation 
-        ? `Date de régularisation: ${this.form.value.dateRegularisation}` 
-        : '';
-        
-      const regularisationInfo = [pieceInfo, dateInfo].filter(Boolean).join('\n');
-      
-      lettreBillet.commentaires = lettreBillet.commentaires 
-        ? `${lettreBillet.commentaires}\n\n${regularisationInfo}` 
-        : regularisationInfo;
-    }
-    
-    // Add the lettre data as a JSON string
-    formData.append('lettre', new Blob([JSON.stringify(lettreBillet)], {
-      type: 'application/json'
-    }));
-    
-    // Add files
-    for (const file of this.selectedFiles) {
-      formData.append('fichiers', file);
-    }
-    
-    if (this.isEditMode && this.lettreId) {
-      this.lettreSommationBilletService.updateLettreSommationBillet(this.lettreId, formData).subscribe({
-        next: () => {
-          alert('Lettre de sommation mise à jour avec succès');
-          this.submitting = false;
-          this.router.navigate(['/lettres-sommation/billet']);
-        },
-        error: (error) => {
-          alert('Erreur lors de la mise à jour de la lettre de sommation');
-          this.submitting = false;
-          console.error(error);
-        }
-      });
-    } else {
-      this.lettreSommationBilletService.createLettreSommationBillet(formData).subscribe({
-        next: () => {
-          alert('Lettre de sommation créée avec succès');
-          this.submitting = false;
-          this.router.navigate(['/lettres-sommation/billet']);
-        },
-        error: (error) => {
-          alert('Erreur lors de la création de la lettre de sommation');
-          this.submitting = false;
-          console.error(error);
-        }
-      });
-    }
+    return;
   }
+  
+  this.submitting = true;
+  
+  const formData = new FormData();
+  const lettreBillet = {
+    actId: this.form.value.act.id,
+    trainId: this.form.value.train.id,
+    gareId: this.form.value.gare.id,
+    dateCreation: this.form.value.dateCreation,
+    dateInfraction: this.form.value.dateInfraction,
+    statut: this.form.value.statut,
+    montantAmende: this.form.value.montantAmende,
+    motifInfraction: this.form.value.motifInfraction,
+    numeroBillet: this.form.value.numeroBillet,
+    commentaires: this.form.value.commentaires
+  };
+  
+  // Add regularization info to comments if applicable
+  if (this.form.value.statut === 'REGULARISEE') {
+    const pieceInfo = this.form.value.numeroPiecePaiement 
+      ? `N° de PP: ${this.form.value.numeroPiecePaiement}` 
+      : '';
+      
+    const dateInfo = this.form.value.dateRegularisation 
+      ? `Date de régularisation: ${this.form.value.dateRegularisation}` 
+      : '';
+      
+    const regularisationInfo = [pieceInfo, dateInfo].filter(Boolean).join('\n');
+    
+    lettreBillet.commentaires = lettreBillet.commentaires 
+      ? `${lettreBillet.commentaires}\n\n${regularisationInfo}` 
+      : regularisationInfo;
+  }
+  
+  // Add the lettre data as a JSON string
+  formData.append('lettre', new Blob([JSON.stringify(lettreBillet)], {
+    type: 'application/json'
+  }));
+  
+  // Add files
+  for (const file of this.selectedFiles) {
+    formData.append('fichiers', file);
+  }
+  
+  console.log('Submitting form data:', lettreBillet);
+  
+  if (this.isEditMode && this.lettreId) {
+    this.lettreSommationBilletService.updateLettreSommationBillet(this.lettreId, formData).subscribe({
+      next: () => {
+        alert('Lettre de sommation mise à jour avec succès');
+        this.submitting = false;
+        this.router.navigate(['/lettres-sommation/billet']);
+      },
+      error: (error) => {
+        alert('Erreur lors de la mise à jour de la lettre de sommation');
+        this.submitting = false;
+        console.error(error);
+      }
+    });
+  } else {
+    this.lettreSommationBilletService.createLettreSommationBillet(formData).subscribe({
+      next: () => {
+        alert('Lettre de sommation créée avec succès');
+        this.submitting = false;
+        this.router.navigate(['/lettres-sommation/billet']);
+      },
+      error: (error) => {
+        alert('Erreur lors de la création de la lettre de sommation: ' + (error.error?.message || error.message || 'Unknown error'));
+        this.submitting = false;
+        console.error('API Error:', error);
+      }
+    });
+  }
+}
 
   // Debug helper: Get all validation errors
   getFormValidationErrors() {
@@ -583,6 +728,122 @@ export class LettreSommationBilletFormComponent implements OnInit {
     
     return errors;
   }
+  /* Train Handling */
+onTrainGammeChange(event: any): void {
+  const gamme = event.target.value;
+  console.log('Train gamme changed:', gamme); // Debug log
+  
+  // Reset train selection but keep the gamme
+  this.form.patchValue({
+    train: {
+      id: null, // Clear the ID
+      numero: '', // Clear the numero
+      gamme: gamme // Keep the selected gamme
+    }
+  });
+  
+  // Load all trains and filter by the selected gamme
+  this.trainService.getAllTrains().subscribe({
+    next: (trains) => {
+      console.log('All trains loaded:', trains);
+      
+      // Filter trains by the selected gamme pattern
+      this.filteredTrains = trains.filter(train => 
+        this.getTrainGamme(train.numero) === gamme
+      );
+      
+      console.log('Filtered trains by gamme:', this.filteredTrains);
+      
+      // If there's only one train for this gamme, auto-select it
+      if (this.filteredTrains.length === 1) {
+        const train = this.filteredTrains[0];
+        console.log('Auto-selecting single train:', train);
+        
+        this.form.patchValue({
+          train: {
+            id: train.id,
+            numero: train.numero,
+            gamme: gamme
+          }
+        });
+        
+        // Verify the ID was set
+        console.log('Train ID after auto-selection:', this.form.get('train.id')?.value);
+        
+        this.filteredTrains = []; // Clear dropdown since we selected the only option
+      }
+    },
+    error: (err) => {
+      console.error('Error fetching trains:', err);
+    }
+  });
+}
+
+onTrainInput(event: any): void {
+  const value = event.target.value;
+  console.log('Train input value:', value); // Debug log
+  
+  if (value && value.length >= 2) {
+    this.trainSearching = true;
+    
+    // Get all trains and filter by the input value
+    this.trainService.getAllTrains().subscribe({
+      next: (trains) => {
+        // Filter trains by the input value
+        this.filteredTrains = trains.filter(train => 
+          train.numero.toLowerCase().includes(value.toLowerCase())
+        );
+        
+        // If we have a gamme selected, further filter by gamme
+        const selectedGamme = this.form.get('train.gamme')?.value;
+        if (selectedGamme) {
+          this.filteredTrains = this.filteredTrains.filter(train => 
+            this.getTrainGamme(train.numero) === selectedGamme
+          );
+        }
+        
+        console.log('Filtered trains by input:', this.filteredTrains);
+        this.trainSearching = false;
+      },
+      error: (err) => {
+        console.error('Error fetching trains:', err);
+        this.trainSearching = false;
+      }
+    });
+  } else {
+    this.filteredTrains = [];
+  }
+}
+
+onTrainSelect(train: any): void {
+  console.log('Train selected:', train); // Debug log
+  
+  if (!train || !train.id) {
+    console.error('Selected train has no ID!', train);
+    return;
+  }
+  
+  // When a train is selected, determine its gamme
+  const gamme = this.getTrainGamme(train.numero);
+  
+  // Make sure to set ALL properties, especially the ID
+  this.form.patchValue({
+    train: {
+      id: train.id,
+      numero: train.numero,
+      gamme: gamme
+    }
+  });
+  
+  // Verify the ID was set properly
+  console.log('Train form values after selection:', this.form.get('train')?.value);
+  console.log('Train ID after selection:', this.form.get('train.id')?.value);
+  
+  this.filteredTrains = []; // Clear dropdown after selection
+  
+  // Force the form to re-validate
+  this.form.get('train')?.updateValueAndValidity();
+}
 
   cancel(): void {
     this.router.navigate(['/lettres-sommation/billet']);

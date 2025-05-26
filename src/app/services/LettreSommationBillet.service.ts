@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { HttpClient, HttpParams, HttpHeaders } from '@angular/common/http';
+import { Observable, of } from 'rxjs';
+import { map, catchError } from 'rxjs/operators';
 import { LettreSommationBillet } from '../core/models/lettre-sommation-billet.model';
 import { environment } from '../../environments/environment';
 
@@ -9,6 +10,7 @@ import { environment } from '../../environments/environment';
 })
 export class LettreSommationBilletService {
   private baseUrl = `${environment.apiUrl}/lettres-sommation-billet`;
+  private filesUrl = `${environment.apiUrl}/files`; // Assuming your file endpoint
 
   constructor(private http: HttpClient) { }
 
@@ -22,10 +24,6 @@ export class LettreSommationBilletService {
 
   createLettreSommationBillet(formData: FormData): Observable<LettreSommationBillet> {
     return this.http.post<LettreSommationBillet>(this.baseUrl, formData);
-  }
-
-  updateLettreSommationBillet(id: number, formData: FormData): Observable<LettreSommationBillet> {
-    return this.http.put<LettreSommationBillet>(`${this.baseUrl}/${id}`, formData);
   }
 
   deleteLettreSommationBillet(id: number): Observable<void> {
@@ -89,5 +87,61 @@ export class LettreSommationBilletService {
       newStatus,
       commentaire
     });
+  }
+
+  updateLettreSommationBillet(id: number, updatedLettre: any): Observable<LettreSommationBillet> {
+    // Create FormData if we have files, otherwise do a regular PUT request
+    if (updatedLettre instanceof FormData) {
+      return this.http.put<LettreSommationBillet>(`${this.baseUrl}/${id}`, updatedLettre);
+    } else {
+      // For simple status updates without files
+      return this.http.put<LettreSommationBillet>(`${this.baseUrl}/${id}`, updatedLettre);
+    }
+  }
+
+  // File operations
+  
+  /**
+   * Get file content as blob for viewing/downloading
+   */
+  getFileBlob(fileId: number): Observable<Blob> {
+    return this.http.get(`${this.filesUrl}/${fileId}`, {
+      responseType: 'blob'
+    });
+  }
+
+  /**
+   * Get file URL for viewing (returns the direct URL)
+   */
+  getFileUrl(fileId: number): string {
+    return `${this.filesUrl}/${fileId}`;
+  }
+
+  /**
+   * Download file directly
+   */
+  downloadFile(fileId: number, fileName: string): Observable<Blob> {
+    return this.http.get(`${this.filesUrl}/${fileId}/download`, {
+      responseType: 'blob'
+    });
+  }
+
+  /**
+   * Get file metadata
+   */
+  getFileMetadata(fileId: number): Observable<any> {
+    return this.http.get(`${this.filesUrl}/${fileId}/metadata`);
+  }
+
+  /**
+   * Check if file exists and is accessible
+   */
+  checkFileAccess(fileId: number): Observable<boolean> {
+    return this.http.head(`${this.filesUrl}/${fileId}`, {
+      observe: 'response'
+    }).pipe(
+      map(response => response.status === 200),
+      catchError(() => of(false))
+    );
   }
 }

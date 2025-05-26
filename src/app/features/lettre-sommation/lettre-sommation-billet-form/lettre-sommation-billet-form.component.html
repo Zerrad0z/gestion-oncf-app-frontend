@@ -529,17 +529,172 @@
           >
             Annuler
           </button>
-          <button 
-            type="submit" 
-            class="px-4 py-2 border border-transparent rounded-md shadow-sm text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary/50 transform hover:-translate-y-0.5 transition-all duration-200"
-            [disabled]="submitting || form.invalid"
-            [ngClass]="{'opacity-70 cursor-not-allowed': submitting || form.invalid}"
-          >
-            <i *ngIf="submitting" class="fas fa-spinner fa-spin mr-2"></i>
-            {{ isEditMode ? 'Mettre à jour' : 'Enregistrer' }}
-          </button>
-        </div>
-      </form>
-    </div>
+          <div class="p-4 bg-orange-50 border border-orange-200 rounded-lg mb-4">
+  <h3 class="font-semibold text-lg mb-2">Form Validation Debug</h3>
+  
+  <div class="mb-2">
+    <span class="font-medium">Form Valid:</span> 
+    <span [ngClass]="{'text-green-600': form.valid, 'text-red-600': !form.valid}">
+      {{ form.valid ? 'Yes ✓' : 'No ✗' }}
+    </span>
   </div>
+  
+  <div class="mb-2">
+    <span class="font-medium">Form Touched:</span> {{ form.touched ? 'Yes' : 'No' }}
+  </div>
+  
+  <div class="mb-2">
+    <span class="font-medium">Form Dirty:</span> {{ form.dirty ? 'Yes' : 'No' }}
+  </div>
+  
+  <button 
+    type="button"
+    class="px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600 mb-2"
+    (click)="showValidationDetails = !showValidationDetails"
+  >
+    {{ showValidationDetails ? 'Hide' : 'Show' }} Validation Details
+  </button>
+  
+  <div *ngIf="showValidationDetails" class="mt-2 text-sm">
+    <h4 class="font-medium mb-1">Invalid Controls:</h4>
+    <ul class="bg-white p-3 rounded border border-gray-200 space-y-1 max-h-60 overflow-auto">
+      <!-- ACT Group -->
+      <li *ngIf="form.get('act')?.invalid" class="text-red-600">
+        <strong>ACT:</strong> 
+        <ul class="ml-4">
+          <li *ngIf="form.get('act.id')?.invalid">
+            ID: {{ getControlErrors('act.id') }}
+          </li>
+          <li *ngIf="form.get('act.matricule')?.invalid">
+            Matricule: {{ getControlErrors('act.matricule') }}
+          </li>
+          <li *ngIf="form.get('act.nomPrenom')?.invalid">
+            Nom/Prénom: {{ getControlErrors('act.nomPrenom') }}
+          </li>
+        </ul>
+      </li>
+      
+      <!-- Train Group -->
+       <div class="bg-yellow-50 p-3 border border-yellow-200 rounded-md my-3">
+  <h4 class="font-medium">Quick Fix for Train ID</h4>
+  <p class="text-sm mb-2">If the Train ID is not being set correctly, you can try to fix it with this button:</p>
+  <div class="flex flex-wrap gap-2">
+    <button 
+      type="button" 
+      class="px-3 py-1.5 bg-yellow-500 text-white rounded hover:bg-yellow-600 text-sm"
+      (click)="fixTrainIdFromNumero()"
+    >
+      Fix Train ID from Current Numero
+    </button>
+    
+    <button 
+      type="button" 
+      class="px-3 py-1.5 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm"
+      (click)="manuallySetTrainId(1)"
+    >
+      Set Train ID = 1
+    </button>
+    
+    <button 
+      type="button" 
+      class="px-3 py-1.5 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm"
+      (click)="manuallySetTrainId(2)"
+    >
+      Set Train ID = 2
+    </button>
+    
+    <button 
+      type="button" 
+      class="px-3 py-1.5 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm"
+      (click)="manuallySetTrainId(3)"
+    >
+      Set Train ID = 3
+    </button>
+  </div>
+</div>
+      <li *ngIf="form.get('train')?.invalid" class="text-red-600">
+        <strong>Train:</strong>
+        <ul class="ml-4">
+          <li *ngIf="form.get('train.id')?.invalid">
+            ID: {{ getControlErrors('train.id') }}
+          </li>
+          <li *ngIf="form.get('train.numero')?.invalid">
+            Numéro: {{ getControlErrors('train.numero') }}
+          </li>
+          <li *ngIf="form.get('train.gamme')?.invalid">
+            Gamme: {{ getControlErrors('train.gamme') }}
+          </li>
+        </ul>
+      </li>
+      
+      <!-- Gare Group -->
+      <li *ngIf="form.get('gare')?.invalid" class="text-red-600">
+        <strong>Gare:</strong>
+        <ul class="ml-4">
+          <li *ngIf="form.get('gare.id')?.invalid">
+            ID: {{ getControlErrors('gare.id') }}
+          </li>
+          <li *ngIf="form.get('gare.nom')?.invalid">
+            Nom: {{ getControlErrors('gare.nom') }}
+          </li>
+        </ul>
+      </li>
+      
+      <!-- Other Fields -->
+      <li *ngIf="form.get('dateCreation')?.invalid" class="text-red-600">
+        Date Création: {{ getControlErrors('dateCreation') }}
+      </li>
+      <li *ngIf="form.get('dateInfraction')?.invalid" class="text-red-600">
+        Date Infraction: {{ getControlErrors('dateInfraction') }}
+      </li>
+      <li *ngIf="form.get('statut')?.invalid" class="text-red-600">
+        Statut: {{ getControlErrors('statut') }}
+      </li>
+      <li *ngIf="form.get('montantAmende')?.invalid" class="text-red-600">
+        Montant Amende: {{ getControlErrors('montantAmende') }}
+      </li>
+      <li *ngIf="form.get('motifInfraction')?.invalid" class="text-red-600">
+        Motif Infraction: {{ getControlErrors('motifInfraction') }}
+      </li>
+      <li *ngIf="form.get('numeroBillet')?.invalid" class="text-red-600">
+        Numéro Billet: {{ getControlErrors('numeroBillet') }}
+      </li>
+      
+      <!-- Regularization Fields (if applicable) -->
+      <li *ngIf="form.get('dateRegularisation')?.invalid && form.get('statut')?.value === 'REGULARISEE'" class="text-red-600">
+        Date Régularisation: {{ getControlErrors('dateRegularisation') }}
+      </li>
+      <li *ngIf="form.get('numeroPiecePaiement')?.invalid && form.get('statut')?.value === 'REGULARISEE'" class="text-red-600">
+        Numéro Pièce Paiement: {{ getControlErrors('numeroPiecePaiement') }}
+      </li>
+    </ul>
+  </div>
+</div>
+div class="mt-8 flex justify-end space-x-3">
+  <button 
+    type="button" 
+    class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 bg-white hover:bg-gray-50 shadow-sm hover:shadow transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary/50"
+    (click)="cancel()"
+  >
+    Annuler
+  </button>
+  
+  <!-- Add this validation check button -->
+  <button 
+    type="button" 
+    class="px-4 py-2 border border-yellow-400 rounded-md text-yellow-800 bg-yellow-100 hover:bg-yellow-200 shadow-sm hover:shadow transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-400"
+    (click)="checkFormValidity()"
+  >
+    Vérifier le formulaire
+  </button>
+  
+  <button 
+    type="submit" 
+    class="px-4 py-2 border border-transparent rounded-md shadow-sm text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary/50 transform hover:-translate-y-0.5 transition-all duration-200"
+    [disabled]="submitting || form.invalid"
+    [ngClass]="{'opacity-70 cursor-not-allowed': submitting || form.invalid}"
+  >
+    <i *ngIf="submitting" class="fas fa-spinner fa-spin mr-2"></i>
+    {{ isEditMode ? 'Mettre à jour' : 'Enregistrer' }}
+  </button>
 </div>
