@@ -1,51 +1,32 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
-import { catchError, tap } from 'rxjs/operators';
-import { Train,TrainRequest } from '../core/models/train.model';
-import { environment } from '../../environments/environment';
+import { Observable } from 'rxjs';
+import { AuthHttpService } from './auth-http.service';
+import { Train, TrainRequest } from '../core/models/train.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class TrainService {
-  // Update this URL to include /v1/ to match your backend
-  private apiUrl = `${environment.apiUrl}/trains`;
 
-  constructor(private http: HttpClient) {
-    // Log the API URL for debugging
-    console.log('TrainService initialized with URL:', this.apiUrl);
-  }
+  constructor(private authHttp: AuthHttpService) {}
 
   getAllTrains(): Observable<Train[]> {
-    return this.http.get<Train[]>(this.apiUrl).pipe(
-      tap(trains => console.log(`Fetched ${trains.length} trains`)),
-      catchError(error => {
-        console.error('Error fetching trains:', error);
-        return throwError(() => error);
-      })
-    );
+    return this.authHttp.get<Train[]>('/trains');
   }
 
   getTrainById(id: number): Observable<Train> {
-    return this.http.get<Train>(`${this.apiUrl}/${id}`).pipe(
-      tap(train => console.log('Fetched train:', train)),
-      catchError(error => {
-        console.error(`Error fetching train with ID ${id}:`, error);
-        return throwError(() => error);
-      })
-    );
+    return this.authHttp.get<Train>(`/trains/${id}`);
   }
 
   createTrain(trainData: TrainRequest): Observable<Train> {
-    return this.http.post<Train>(this.apiUrl, trainData);
+    return this.authHttp.post<Train>('/trains', trainData);
   }
 
   updateTrain(id: number, trainData: TrainRequest): Observable<Train> {
-    return this.http.put<Train>(`${this.apiUrl}/${id}`, trainData);
+    return this.authHttp.put<Train>(`/trains/${id}`, trainData);
   }
 
   deleteTrain(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+    return this.authHttp.delete<void>(`/trains/${id}`);
   }
 }

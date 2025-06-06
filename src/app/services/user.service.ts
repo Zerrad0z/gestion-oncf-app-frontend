@@ -1,43 +1,52 @@
-// src/app/core/services/user.service.ts
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { AuthHttpService } from './auth-http.service';
 import { User, UserRequest, UserUpdateRequest } from '../core/models/user.model';
-import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UserService {
-  private apiUrl = `${environment.apiUrl}/utilisateurs`;
 
-  constructor(private http: HttpClient) { }
+  constructor(private authHttp: AuthHttpService) {}
 
   getAllUsers(): Observable<User[]> {
-    return this.http.get<User[]>(this.apiUrl);
+    return this.authHttp.get<User[]>('/utilisateurs');
   }
 
   getUserById(id: number): Observable<User> {
-    return this.http.get<User>(`${this.apiUrl}/${id}`);
+    return this.authHttp.get<User>(`/utilisateurs/${id}`);
   }
 
-  createUser(userData: UserRequest): Observable<User> {
-    return this.http.post<User>(this.apiUrl, userData);
+  createUser(userRequest: UserRequest): Observable<User> {
+    return this.authHttp.post<User>('/utilisateurs', userRequest);
   }
 
-  updateUser(id: number, userData: UserUpdateRequest): Observable<User> {
-    return this.http.put<User>(`${this.apiUrl}/${id}`, userData);
+  updateUser(id: number, userUpdateRequest: UserUpdateRequest): Observable<User> {
+    return this.authHttp.put<User>(`/utilisateurs/${id}`, userUpdateRequest);
   }
 
   deleteUser(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+    return this.authHttp.delete<void>(`/utilisateurs/${id}`);
   }
 
   toggleUserStatus(id: number): Observable<User> {
-    return this.http.patch<User>(`${this.apiUrl}/${id}/status`, {});
+    return this.authHttp.patch<User>(`/utilisateurs/${id}/status`, {});
   }
 
   updateLastConnection(id: number): Observable<User> {
-    return this.http.patch<User>(`${this.apiUrl}/${id}/connexion`, {});
+    return this.authHttp.patch<User>(`/utilisateurs/${id}/connexion`, {});
+  }
+
+  searchUsers(searchTerm: string): Observable<User[]> {
+    return this.authHttp.get<User[]>('/utilisateurs/search', { search: searchTerm });
+  }
+
+  getUsersByRole(role: string): Observable<User[]> {
+    return this.authHttp.get<User[]>('/utilisateurs/by-role', { role });
+  }
+
+  getActiveUsers(): Observable<User[]> {
+    return this.authHttp.get<User[]>('/utilisateurs/active', { actif: 'true' });
   }
 }

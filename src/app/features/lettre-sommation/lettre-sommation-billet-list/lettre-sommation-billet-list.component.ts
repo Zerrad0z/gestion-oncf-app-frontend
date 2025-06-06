@@ -146,15 +146,15 @@ export class LettreSommationBilletListComponent implements OnInit {
   }
 
   viewDetails(id: number): void {
-    this.router.navigate(['/lettres-sommation/billet', id]);
+    this.router.navigate(['/lettre-sommation/billet', id]);
   }
 
   createNew(): void {
-    this.router.navigate(['/lettres-sommation/billet/create']);
+    this.router.navigate(['/lettre-sommation/billet/create']);
   }
 
   edit(id: number): void {
-    this.router.navigate(['/lettres-sommation/billet/edit', id]);
+    this.router.navigate(['/lettre-sommation/billet/edit', id]);
   }
 
   delete(id: number): void {

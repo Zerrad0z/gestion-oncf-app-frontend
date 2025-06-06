@@ -1,4 +1,3 @@
-// src/app/core/models/user.model.ts
 export enum UserRole {
   ADMIN = 'ADMIN',
   SUPERVISEUR = 'SUPERVISEUR',

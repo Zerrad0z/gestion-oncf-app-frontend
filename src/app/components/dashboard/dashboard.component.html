@@ -1,149 +1,239 @@
+<!-- src/app/components/dashboard/dashboard.component.html -->
 <div class="dashboard">
-    <div class="page-header">
-      <h1 class="page-title">Tableau de bord</h1>
-      <p class="page-subtitle">Bienvenue au système de gestion ONCF</p>
+  <div class="page-header mb-8">
+    <h1 class="page-title text-3xl font-bold text-gray-900">Tableau de bord</h1>
+    <p class="page-subtitle text-gray-600 mt-2">Bienvenue au système de gestion ONCF</p>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-state mb-8">
+    <div class="flex items-center justify-center py-8">
+      <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-oncf-orange-600"></div>
+      <span class="ml-3 text-gray-600">Chargement des statistiques...</span>
     </div>
-    
-    <!-- Statistics Cards -->
-    <div class="stats-grid">
-      <!-- Lettres Sommation (Billet) Stats -->
-      <div class="app-card">
-        <div class="card-header">
-          <h2 class="card-title">Lettres (Billet)</h2>
-          <i class="fas fa-file-alt card-icon"></i>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !loading" class="error-state mb-8">
+    <div class="bg-red-50 border border-red-200 rounded-xl p-6 text-center">
+      <i class="fas fa-exclamation-triangle text-red-500 text-2xl mb-3"></i>
+      <p class="text-red-700 font-medium">Erreur lors du chargement des données</p>
+      <p class="text-red-600 text-sm mt-1">{{error}}</p>
+      <button (click)="loadDashboardData()" 
+              class="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+        Réessayer
+      </button>
+    </div>
+  </div>
+
+  <!-- Main Stats Grid -->
+  <div *ngIf="!loading && !error" class="stats-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <!-- ACTs Overview -->
+    <div class="stat-card bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow cursor-pointer"
+         routerLink="/act-overview">
+      <div class="flex items-center justify-between mb-4">
+        <div class="stat-icon bg-blue-100 text-blue-600 w-12 h-12 rounded-lg flex items-center justify-center">
+          <i class="fas fa-users text-xl"></i>
         </div>
-        
-        <div class="card-total">
-          <span class="label">Total</span>
-          <span class="value">{{stats.lettresBillet.total}}</span>
-        </div>
-        
-        <div class="card-stats">
-          <div class="stat-box stat-success">
-            <div class="stat-label">Régularisées</div>
-            <div class="stat-value">{{stats.lettresBillet.regularisees}}</div>
-          </div>
-          
-          <div class="stat-box stat-danger">
-            <div class="stat-label">Non Régularisées</div>
-            <div class="stat-value">{{stats.lettresBillet.nonRegularisees}}</div>
-          </div>
-        </div>
+        <i class="fas fa-chevron-right text-gray-400"></i>
       </div>
-      
-      <!-- Lettres Sommation (Carte) Stats -->
-      <div class="app-card">
-        <div class="card-header">
-          <h2 class="card-title">Lettres (Carte)</h2>
-          <i class="fas fa-credit-card card-icon"></i>
-        </div>
-        
-        <div class="card-total">
-          <span class="label">Total</span>
-          <span class="value">{{stats.lettresCarte.total}}</span>
-        </div>
-        
-        <div class="card-stats">
-          <div class="stat-box stat-success">
-            <div class="stat-label">Régularisées</div>
-            <div class="stat-value">{{stats.lettresCarte.regularisees}}</div>
-          </div>
-          
-          <div class="stat-box stat-danger">
-            <div class="stat-label">Non Régularisées</div>
-            <div class="stat-value">{{stats.lettresCarte.nonRegularisees}}</div>
-          </div>
-        </div>
-      </div>
-      
-      <!-- Rapports Stats -->
-      <div class="app-card">
-        <div class="card-header">
-          <h2 class="card-title">Rapports M</h2>
-          <i class="fas fa-file-signature card-icon"></i>
-        </div>
-        
-        <div class="card-total">
-          <span class="label">Total</span>
-          <span class="value">{{stats.rapports.total}}</span>
-        </div>
-        
-        <div class="card-stats reports-grid">
-          <div class="stat-box stat-warning">
-            <div class="stat-label">En Attente</div>
-            <div class="stat-value">{{stats.rapports.enAttente}}</div>
-          </div>
-          
-          <div class="stat-box stat-info">
-            <div class="stat-label">En Cours</div>
-            <div class="stat-value">{{stats.rapports.enCours}}</div>
-          </div>
-          
-          <div class="stat-box stat-success">
-            <div class="stat-label">Traités</div>
-            <div class="stat-value">{{stats.rapports.traites}}</div>
-          </div>
-          
-          <div class="stat-box stat-danger">
-            <div class="stat-label">Rejetés</div>
-            <div class="stat-value">{{stats.rapports.rejetes}}</div>
-          </div>
+      <div class="stat-content">
+        <h3 class="stat-title text-gray-900 text-sm font-medium mb-1">Agent Commercial Train</h3>
+        <div class="stat-value text-2xl font-bold text-gray-900 mb-2">{{stats.acts.total}}</div>
+        <div class="stat-details text-xs text-gray-600">
+          <span>{{stats.acts.sections}} sections</span>
         </div>
       </div>
     </div>
-    
-    <!-- Recent Activity and Quick Links -->
-    <div class="content-grid">
-      <!-- Recent Activity List -->
-      <div class="app-card">
-        <h2 class="card-title">Activité Récente</h2>
-        
-        <div class="activity-list">
-          <div *ngFor="let activity of recentActivities" class="activity-item">
-            <div class="activity-header">
-              <div class="activity-type">{{getTypeLabel(activity.type)}}</div>
-              <div class="activity-date">{{activity.date | date:'dd/MM/yyyy HH:mm'}}</div>
-            </div>
-            
-            <div class="activity-details">
-              <div class="activity-user">Par {{activity.user}}</div>
-              <div class="status-badge" [ngClass]="getStatusClass(activity.status)">
-                {{getStatusLabel(activity.status)}}
-              </div>
-            </div>
-          </div>
+
+    <!-- Lettres Billet -->
+    <div class="stat-card bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow cursor-pointer"
+         routerLink="/lettre-sommation/billet">
+      <div class="flex items-center justify-between mb-4">
+        <div class="stat-icon bg-green-100 text-green-600 w-12 h-12 rounded-lg flex items-center justify-center">
+          <i class="fas fa-ticket-alt text-xl"></i>
         </div>
-        
-        <div class="view-all">
-          <a href="#" class="view-all-link">Voir toutes les activités</a>
+        <i class="fas fa-chevron-right text-gray-400"></i>
+      </div>
+      <div class="stat-content">
+        <h3 class="stat-title text-gray-900 text-sm font-medium mb-1">Lettres (Billet)</h3>
+        <div class="stat-value text-2xl font-bold text-gray-900 mb-2">{{stats.lettresBillet.total}}</div>
+        <div class="stat-details text-xs text-gray-600 space-x-3">
+          <span class="text-green-600">{{stats.lettresBillet.regularisees}} régularisées</span>
+          <span class="text-red-600">{{stats.lettresBillet.nonRegularisees}} non régularisées</span>
         </div>
       </div>
-      
-      <!-- Quick Links -->
-      <div class="app-card">
-        <h2 class="card-title">Actions Rapides</h2>
-        
-        <div class="quick-links">
-          <a routerLink="/lettres-sommation/billet/nouvelle" class="quick-link-box">
-            <i class="fas fa-plus-circle quick-link-icon"></i>
-            <span class="quick-link-text">Nouvelle Lettre (Billet)</span>
-          </a>
-          
-          <a routerLink="/lettres-sommation/carte/nouvelle" class="quick-link-box">
-            <i class="fas fa-plus-circle quick-link-icon"></i>
-            <span class="quick-link-text">Nouvelle Lettre (Carte)</span>
-          </a>
-          
-          <a routerLink="/rapports/nouveau" class="quick-link-box">
-            <i class="fas fa-plus-circle quick-link-icon"></i>
-            <span class="quick-link-text">Nouveau Rapport</span>
-          </a>
-          
-          <a routerLink="/statistiques" class="quick-link-box">
-            <i class="fas fa-chart-bar quick-link-icon"></i>
-            <span class="quick-link-text">Voir Statistiques</span>
-          </a>
+    </div>
+
+    <!-- Lettres Carte -->
+    <div class="stat-card bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow cursor-pointer"
+         routerLink="/lettre-sommation/carte">
+      <div class="flex items-center justify-between mb-4">
+        <div class="stat-icon bg-purple-100 text-purple-600 w-12 h-12 rounded-lg flex items-center justify-center">
+          <i class="fas fa-credit-card text-xl"></i>
+        </div>
+        <i class="fas fa-chevron-right text-gray-400"></i>
+      </div>
+      <div class="stat-content">
+        <h3 class="stat-title text-gray-900 text-sm font-medium mb-1">Lettres (Carte)</h3>
+        <div class="stat-value text-2xl font-bold text-gray-900 mb-2">{{stats.lettresCarte.total}}</div>
+        <div class="stat-details text-xs text-gray-600 space-x-3">
+          <span class="text-green-600">{{stats.lettresCarte.regularisees}} régularisées</span>
+          <span class="text-red-600">{{stats.lettresCarte.nonRegularisees}} non régularisées</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Rapports -->
+    <div class="stat-card bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow cursor-pointer"
+         routerLink="/rapport/rapport-m">
+      <div class="flex items-center justify-between mb-4">
+        <div class="stat-icon bg-orange-100 text-orange-600 w-12 h-12 rounded-lg flex items-center justify-center">
+          <i class="fas fa-file-contract text-xl"></i>
+        </div>
+        <i class="fas fa-chevron-right text-gray-400"></i>
+      </div>
+      <div class="stat-content">
+        <h3 class="stat-title text-gray-900 text-sm font-medium mb-1">Rapports M</h3>
+        <div class="stat-value text-2xl font-bold text-gray-900 mb-2">{{stats.rapports.total}}</div>
+        <div class="stat-details text-xs text-gray-600">
+          <span>{{stats.rapports.thisMonth}} ce mois</span>
         </div>
       </div>
     </div>
   </div>
+
+  <!-- Monthly Activity Section -->
+  <div *ngIf="!loading && !error" class="activity-section grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+    <!-- Monthly Overview Chart -->
+    <div class="monthly-overview-card lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+      <div class="card-header flex items-center justify-between mb-6">
+        <h2 class="text-xl font-semibold text-gray-900">Activité de ce mois</h2>
+        <div class="month-selector text-sm text-gray-600">
+          {{getCurrentMonth()}}
+        </div>
+      </div>
+
+      <!-- Quick Stats -->
+      <div class="quick-stats grid grid-cols-3 gap-4 mb-6">
+        <div class="quick-stat text-center p-4 bg-blue-50 rounded-lg">
+          <div class="text-blue-600 text-2xl font-bold">{{stats.lettresBillet.thisMonth}}</div>
+          <div class="text-blue-700 text-sm font-medium">Lettres Billet</div>
+        </div>
+        <div class="quick-stat text-center p-4 bg-green-50 rounded-lg">
+          <div class="text-green-600 text-2xl font-bold">{{stats.lettresCarte.thisMonth}}</div>
+          <div class="text-green-700 text-sm font-medium">Lettres Carte</div>
+        </div>
+        <div class="quick-stat text-center p-4 bg-purple-50 rounded-lg">
+          <div class="text-purple-600 text-2xl font-bold">{{stats.rapports.thisMonth}}</div>
+          <div class="text-purple-700 text-sm font-medium">Rapports M</div>
+        </div>
+      </div>
+
+      <!-- Progress Bars -->
+      <div class="progress-section space-y-4">
+        <div class="progress-item">
+          <div class="flex justify-between text-sm font-medium text-gray-700 mb-2">
+            <span>Lettres de Sommation (Billet)</span>
+            <span>{{getPercentage(stats.lettresBillet.regularisees, stats.lettresBillet.total)}}% régularisées</span>
+          </div>
+          <div class="w-full bg-gray-200 rounded-full h-2">
+            <div class="bg-blue-500 h-2 rounded-full transition-all duration-500" 
+                 [style.width.%]="getPercentage(stats.lettresBillet.regularisees, stats.lettresBillet.total)"></div>
+          </div>
+        </div>
+        
+        <div class="progress-item">
+          <div class="flex justify-between text-sm font-medium text-gray-700 mb-2">
+            <span>Lettres de Sommation (Carte)</span>
+            <span>{{getPercentage(stats.lettresCarte.regularisees, stats.lettresCarte.total)}}% régularisées</span>
+          </div>
+          <div class="w-full bg-gray-200 rounded-full h-2">
+            <div class="bg-green-500 h-2 rounded-full transition-all duration-500" 
+                 [style.width.%]="getPercentage(stats.lettresCarte.regularisees, stats.lettresCarte.total)"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="recent-activity-card bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+      <div class="card-header flex items-center justify-between mb-6">
+        <h2 class="text-lg font-semibold text-gray-900">Activité Récente</h2>
+        <button class="text-sm text-oncf-orange-600 hover:text-oncf-orange-700" routerLink="/historique">
+          Voir tout
+        </button>
+      </div>
+
+      <div class="activity-list space-y-4 max-h-96 overflow-y-auto custom-scrollbar">
+        <div *ngFor="let activity of recentActivities" 
+             class="activity-item flex items-start space-x-3 p-3 rounded-lg hover:bg-gray-50 transition-colors">
+          <div class="activity-icon flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center"
+               [class.bg-blue-100]="activity.type === 'LETTRE_BILLET'"
+               [class.text-blue-600]="activity.type === 'LETTRE_BILLET'"
+               [class.bg-green-100]="activity.type === 'LETTRE_CARTE'"
+               [class.text-green-600]="activity.type === 'LETTRE_CARTE'"
+               [class.bg-purple-100]="activity.type === 'RAPPORT_M'"
+               [class.text-purple-600]="activity.type === 'RAPPORT_M'">
+            <i class="fas fa-ticket-alt text-xs" *ngIf="activity.type === 'LETTRE_BILLET'"></i>
+            <i class="fas fa-credit-card text-xs" *ngIf="activity.type === 'LETTRE_CARTE'"></i>
+            <i class="fas fa-file-contract text-xs" *ngIf="activity.type === 'RAPPORT_M'"></i>
+          </div>
+          
+          <div class="activity-content flex-1 min-w-0">
+            <div class="activity-title text-sm font-medium text-gray-900">{{getTypeLabel(activity.type)}}</div>
+            <div class="activity-description text-xs text-gray-600 mt-1">{{activity.description}}</div>
+            <div class="activity-meta flex items-center space-x-3 mt-2">
+              <span class="activity-user text-xs text-gray-500">{{activity.user}}</span>
+              <span class="activity-date text-xs text-gray-500">{{formatActivityDate(activity.date)}}</span>
+              <span class="activity-status text-xs px-2 py-1 rounded-full"
+                    [class]="getStatusClass(activity.status)">
+                {{getStatusLabel(activity.status)}}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div *ngIf="!loading && !error" class="quick-actions-section">
+    <div class="section-header mb-6">
+      <h2 class="text-xl font-semibold text-gray-900">Actions Rapides</h2>
+      <p class="text-gray-600 text-sm mt-1">Accès rapide aux fonctionnalités principales</p>
+    </div>
+
+    <div class="actions-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <!-- View ACTs -->
+      <div class="action-card bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 rounded-xl p-6 hover:shadow-md transition-all cursor-pointer"
+           routerLink="/act-overview">
+        <div class="action-icon bg-blue-500 text-white w-12 h-12 rounded-lg flex items-center justify-center mb-4">
+          <i class="fas fa-users text-xl"></i>
+        </div>
+        <h3 class="action-title text-lg font-semibold text-blue-900 mb-2">Vue des ACTs</h3>
+        <p class="action-description text-sm text-blue-700">Visualiser tous les ACT et leurs statistiques</p>
+      </div>
+
+      <!-- Create Document -->
+      <div class="action-card bg-gradient-to-br from-green-50 to-green-100 border border-green-200 rounded-xl p-6 hover:shadow-md transition-all cursor-pointer"
+           routerLink="/lettre-sommation/billet">
+        <div class="action-icon bg-green-500 text-white w-12 h-12 rounded-lg flex items-center justify-center mb-4">
+          <i class="fas fa-plus text-xl"></i>
+        </div>
+        <h3 class="action-title text-lg font-semibold text-green-900 mb-2">Nouveau Document</h3>
+        <p class="action-description text-sm text-green-700">Créer une nouvelle lettre de sommation ou rapport</p>
+      </div>
+
+      <!-- View Reports -->
+      <div class="action-card bg-gradient-to-br from-purple-50 to-purple-100 border border-purple-200 rounded-xl p-6 hover:shadow-md transition-all cursor-pointer"
+           routerLink="/statistiques">
+        <div class="action-icon bg-purple-500 text-white w-12 h-12 rounded-lg flex items-center justify-center mb-4">
+          <i class="fas fa-chart-bar text-xl"></i>
+        </div>
+        <h3 class="action-title text-lg font-semibold text-purple-900 mb-2">Statistiques</h3>
+        <p class="action-description text-sm text-purple-700">Consulter les rapports et analyses détaillées</p>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,35 +1,32 @@
-// src/app/core/services/gare.service.ts
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { AuthHttpService } from './auth-http.service';
 import { Gare, GareRequest } from '../core/models/gare.model';
-import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class GareService {
-  private apiUrl = `${environment.apiUrl}/gares`;
 
-  constructor(private http: HttpClient) { }
+  constructor(private authHttp: AuthHttpService) {}
 
   getAllGares(): Observable<Gare[]> {
-    return this.http.get<Gare[]>(this.apiUrl);
+    return this.authHttp.get<Gare[]>('/gares');
   }
 
   getGareById(id: number): Observable<Gare> {
-    return this.http.get<Gare>(`${this.apiUrl}/${id}`);
+    return this.authHttp.get<Gare>(`/gares/${id}`);
   }
 
   createGare(gareData: GareRequest): Observable<Gare> {
-    return this.http.post<Gare>(this.apiUrl, gareData);
+    return this.authHttp.post<Gare>('/gares', gareData);
   }
 
   updateGare(id: number, gareData: GareRequest): Observable<Gare> {
-    return this.http.put<Gare>(`${this.apiUrl}/${id}`, gareData);
+    return this.authHttp.put<Gare>(`/gares/${id}`, gareData);
   }
 
   deleteGare(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+    return this.authHttp.delete<void>(`/gares/${id}`);
   }
 }

@@ -123,46 +123,93 @@ export class LettreSommationBilletDetailComponent implements OnInit {
       }
     });
   }
+  // Replace these three methods in your lettre-sommation-billet-detail.component.ts
 
-  changeStatut(newStatut: StatutEnum): void {
-    if (!this.lettreId || !this.lettre) return;
-    
-    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-      width: '400px',
-      data: {
-        title: 'Confirmation de changement de statut',
-        message: `Êtes-vous sûr de vouloir changer le statut de la lettre de sommation à "${newStatut}" ?`,
-        confirmText: 'Confirmer',
-        cancelText: 'Annuler'
-      }
-    });
+changeStatut(newStatut: StatutEnum): void {
+  if (!this.lettreId || !this.lettre) return;
+  
+  const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+    width: '400px',
+    data: {
+      title: 'Confirmation de changement de statut',
+      message: `Êtes-vous sûr de vouloir changer le statut de la lettre de sommation à "${newStatut}" ?`,
+      confirmText: 'Confirmer',
+      cancelText: 'Annuler'
+    }
+  });
 
-    dialogRef.afterClosed().subscribe(result => {
-      if (result && this.lettreId && this.lettre) {
-        // Create a copy of the current lettre with the new status
-        const updatedLettre = {
-          ...this.lettre,
-          statut: newStatut,
-          dateTraitement: newStatut === StatutEnum.REGULARISEE ? new Date().toISOString().split('T')[0] : this.lettre.dateTraitement
-        };
-        
-        this.lettreSommationBilletService.updateLettreSommationBillet(this.lettreId, updatedLettre)
-          .subscribe({
-            next: (data) => {
-              this.lettre = data;
-              alert('Statut de la lettre de sommation modifié avec succès');
-            },
-            error: (err) => {
-              console.error('Error updating lettre sommation status:', err);
-              alert('Erreur lors de la mise à jour du statut de la lettre de sommation');
-            }
-          });
-      }
-    });
+  dialogRef.afterClosed().subscribe(result => {
+    if (result && this.lettreId && this.lettre) {
+      // Create a simple object with only the fields that need to be updated
+      const statusUpdate = {
+        statut: newStatut,
+        dateTraitement: newStatut === StatutEnum.REGULARISEE ? new Date().toISOString().split('T')[0] : this.lettre.dateTraitement
+      };
+      
+      // FIXED: Use the new status update method instead of the FormData method
+      this.lettreSommationBilletService.updateLettreSommationBilletStatus(this.lettreId, statusUpdate)
+        .subscribe({
+          next: (data) => {
+            this.lettre = data;
+            alert('Statut de la lettre de sommation modifié avec succès');
+          },
+          error: (err) => {
+            console.error('Error updating lettre sommation status:', err);
+            alert('Erreur lors de la mise à jour du statut de la lettre de sommation');
+          }
+        });
+    }
+  });
+}
+
+/**
+ * Download file with proper filename
+ */
+downloadFile(piece: PieceJointe): void {
+  if (!piece.id) {
+    console.error('File ID is missing');
+    return;
   }
 
-  // Enhanced file handling methods
+  this.fileLoading = true;
   
+  // FIXED: Only pass the fileId parameter
+  this.lettreSommationBilletService.downloadFile(piece.id)
+    .subscribe({
+      next: (blob: Blob) => {
+        this.downloadBlob(blob, piece.nomFichier);
+        this.fileLoading = false;
+      },
+      error: (err) => {
+        console.error('Error downloading file:', err);
+        alert('Erreur lors du téléchargement du fichier');
+        this.fileLoading = false;
+      }
+    });
+}
+
+/**
+ * Download file from PDF viewer
+ */
+downloadCurrentFile(): void {
+  if (this.selectedFileId && this.selectedFileName) {
+    this.fileLoading = true;
+    
+    // FIXED: Only pass the fileId parameter
+    this.lettreSommationBilletService.downloadFile(this.selectedFileId)
+      .subscribe({
+        next: (blob: Blob) => {
+          this.downloadBlob(blob, this.selectedFileName!);
+          this.fileLoading = false;
+        },
+        error: (err) => {
+          console.error('Error downloading file:', err);
+          alert('Erreur lors du téléchargement du fichier');
+          this.fileLoading = false;
+        }
+      });
+  }
+}
   /**
    * View file - handles different file types appropriately
    */
@@ -191,49 +238,6 @@ export class LettreSommationBilletDetailComponent implements OnInit {
     }
   }
 
-  /**
-   * Download file with proper filename
-   */
-  downloadFile(piece: PieceJointe): void {
-    if (!piece.id) {
-      console.error('File ID is missing');
-      return;
-    }
-
-    this.fileLoading = true;
-    
-    this.lettreSommationBilletService.downloadFile(piece.id, piece.nomFichier)
-      .subscribe({
-        next: (blob: Blob) => {
-          this.downloadBlob(blob, piece.nomFichier);
-          this.fileLoading = false;
-        },
-        error: (err) => {
-          console.error('Error downloading file:', err);
-          alert('Erreur lors du téléchargement du fichier');
-          this.fileLoading = false;
-        }
-      });
-  }
-
-  /**
-   * Download file from PDF viewer
-   */
-  downloadCurrentFile(): void {
-    if (this.selectedFileId && this.selectedFileName) {
-      const piece: PieceJointe = {
-        id: this.selectedFileId,
-        nomFichier: this.selectedFileName,
-        typeDocument: '',
-        documentId: 0,
-        cheminFichier: '',
-        typeMime: '',
-        taille: 0,
-        dateCreation: ''
-      };
-      this.downloadFile(piece);
-    }
-  }
 
   /**
    * Helper method to create download link and trigger download

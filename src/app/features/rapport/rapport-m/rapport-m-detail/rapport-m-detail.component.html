@@ -1,0 +1,312 @@
+<div class="container mx-auto px-4 py-6 max-w-6xl">
+  <!-- Loading State -->
+  <div *ngIf="loading" class="flex justify-center items-center h-64">
+    <div class="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+    <span class="ml-4 text-gray-600">Chargement des données...</span>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error" class="bg-red-100 p-4 rounded-lg text-red-800 flex items-center">
+    <i class="fas fa-exclamation-circle text-2xl mr-3"></i>
+    <div>
+      <h3 class="font-bold">Erreur</h3>
+      <p>{{ errorMessage }}</p>
+      <button (click)="goBack()" class="mt-2 bg-red-200 hover:bg-red-300 text-red-800 py-1 px-3 rounded transition">
+        Retour
+      </button>
+    </div>
+  </div>
+
+  <!-- Enhanced PDF/File Viewer Modal -->
+  <div *ngIf="showPdfViewer" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 pdf-viewer-modal">
+    <div class="bg-white rounded-lg shadow-lg w-11/12 h-5/6 max-w-6xl flex flex-col pdf-viewer-container">
+      <!-- PDF Viewer Header -->
+      <div class="flex justify-between items-center p-4 border-b border-gray-200 pdf-viewer-header">
+        <h3 class="text-lg font-semibold text-white">{{ selectedFileName }}</h3>
+        <div class="flex space-x-2">
+          <button 
+            (click)="downloadCurrentFile()" 
+            class="px-3 py-1.5 bg-white bg-opacity-20 text-white rounded-md hover:bg-opacity-30 transition flex items-center"
+            [disabled]="fileLoading"
+          >
+            <i class="fas fa-download mr-1.5" [class.fa-spin]="fileLoading"></i>
+            {{ fileLoading ? 'Téléchargement...' : 'Télécharger' }}
+          </button>
+          <button 
+            (click)="closePdfViewer()" 
+            class="px-3 py-1.5 bg-white bg-opacity-20 text-white rounded-md hover:bg-opacity-30 transition flex items-center"
+          >
+            <i class="fas fa-times mr-1.5"></i>
+            Fermer
+          </button>
+        </div>
+      </div>
+      
+      <!-- PDF Viewer Content -->
+      <div class="flex-1 p-4 relative">
+        <!-- Loading indicator -->
+        <div *ngIf="fileLoading" class="absolute inset-0 flex items-center justify-center bg-gray-50">
+          <div class="text-center">
+            <div class="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p class="text-gray-600">Chargement du fichier...</p>
+          </div>
+        </div>
+
+        <!-- Error state -->
+        <div *ngIf="fileError" class="absolute inset-0 flex items-center justify-center bg-gray-50">
+          <div class="text-center text-red-600">
+            <i class="fas fa-exclamation-triangle text-4xl mb-4"></i>
+            <p class="text-lg font-semibold">Erreur lors du chargement du fichier</p>
+            <p class="text-sm mt-2">Le fichier ne peut pas être affiché dans le navigateur.</p>
+            <button 
+              (click)="downloadCurrentFile()" 
+              class="mt-4 px-4 py-2 bg-primary text-white rounded-md hover:bg-primary-dark transition"
+            >
+              Télécharger le fichier
+            </button>
+          </div>
+        </div>
+
+        <!-- File viewer iframe -->
+        <iframe 
+          *ngIf="selectedFileUrl && !fileLoading && !fileError"
+          [src]="selectedFileUrl" 
+          class="w-full h-full border border-gray-300 rounded"
+          frameborder="0"
+          (load)="onFileLoadSuccess()"
+          (error)="onFileLoadError()"
+        >
+        </iframe>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div *ngIf="!loading && !error && rapport" class="bg-white rounded-lg shadow-lg border border-gray-200 main-content-card">
+    <!-- Header with actions -->
+    <div class="border-b border-gray-200 px-6 py-4 bg-gradient-to-r from-primary-light/10 to-primary/5 rounded-t-lg flex justify-between items-center header-section">
+      <h2 class="text-xl font-semibold text-gray-800">
+        Rapport M - {{ rapport.references }}
+      </h2>
+      <div class="flex space-x-2 action-buttons">
+        <button (click)="editRapport()" class="px-3 py-1.5 bg-primary text-white rounded-md hover:bg-primary-dark transition flex items-center edit-btn">
+          <i class="fas fa-edit mr-1.5"></i>
+          Modifier
+        </button>
+        <button (click)="deleteRapport()" class="px-3 py-1.5 bg-red-600 text-white rounded-md hover:bg-red-700 transition flex items-center delete-btn">
+          <i class="fas fa-trash-alt mr-1.5"></i>
+          Supprimer
+        </button>
+        <button (click)="goBack()" class="px-3 py-1.5 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition flex items-center back-btn">
+          <i class="fas fa-arrow-left mr-1.5"></i>
+          Retour
+        </button>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="p-6 space-y-8">
+      <!-- Rapport Information Card -->
+      <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden info-card">
+        <div class="border-b border-gray-200 bg-gray-50 px-4 py-3 card-header">
+          <h3 class="text-lg font-medium text-gray-700">
+            <i class="fas fa-file-alt mr-2 text-primary"></i>
+            Informations du Rapport
+          </h3>
+        </div>
+        <div class="p-5 card-content">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- References -->
+            <div class="flex flex-col field-group">
+              <span class="text-sm text-gray-500 mb-1 field-label">Références</span>
+              <span class="font-medium field-value">{{ rapport.references }}</span>
+            </div>
+            
+            <!-- Date Envoi -->
+            <div class="flex flex-col field-group">
+              <span class="text-sm text-gray-500 mb-1 field-label">Date d'envoi</span>
+              <span class="font-medium field-value">{{ formatDate(rapport.dateEnvoi) }}</span>
+            </div>
+            
+            <!-- Date Reception -->
+            <div class="flex flex-col field-group">
+              <span class="text-sm text-gray-500 mb-1 field-label">Date de réception</span>
+              <span class="font-medium field-value">{{ formatDate(rapport.dateReception) }}</span>
+            </div>
+            
+            <!-- Categorie -->
+            <div class="flex flex-col field-group">
+              <span class="text-sm text-gray-500 mb-1 field-label">Catégorie</span>
+              <span class="px-3 py-1 rounded-full text-sm font-medium inline-flex items-center justify-center w-fit" 
+                    [ngClass]="{
+                      'bg-yellow-100 text-yellow-800': rapport.categorie === 'EPAVES',
+                      'bg-green-100 text-green-800': rapport.categorie === 'COMPTABILITE',
+                      'bg-blue-100 text-blue-800': rapport.categorie === 'BILLETS',
+                      'bg-gray-100 text-gray-800': rapport.categorie === 'DIVERS'
+                    }">
+                {{ rapport.categorie }}
+              </span>
+            </div>
+            
+            <!-- Date Train -->
+            <div class="flex flex-col field-group">
+              <span class="text-sm text-gray-500 mb-1 field-label">Date du train</span>
+              <span class="font-medium field-value">{{ formatDate(rapport.dateTrain) }}</span>
+            </div>
+          </div>
+
+          <!-- Objet -->
+          <div class="mt-6">
+            <h4 class="text-sm text-gray-500 mb-1 field-label">Objet</h4>
+            <p class="p-3 bg-gray-50 rounded-md text-area">{{ rapport.objet }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ACT Agent Card -->
+      <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden info-card">
+        <div class="border-b border-gray-200 bg-gray-50 px-4 py-3 card-header">
+          <h3 class="text-lg font-medium text-gray-700">
+            <i class="fas fa-user-tie mr-2 text-primary"></i>
+            Agent de Contrôle (ACT)
+          </h3>
+        </div>
+        <div class="p-5 card-content">
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div class="flex flex-col field-group">
+              <span class="text-sm text-gray-500 mb-1 field-label">Matricule</span>
+              <span class="font-medium field-value">{{ rapport.act.matricule }}</span>
+            </div>
+            
+            <div class="flex flex-col field-group">
+              <span class="text-sm text-gray-500 mb-1 field-label">Nom et prénom</span>
+              <span class="font-medium field-value">{{ rapport.act.nomPrenom }}</span>
+            </div>
+            
+            <div class="flex flex-col field-group">
+              <span class="text-sm text-gray-500 mb-1 field-label">Antenne</span>
+              <span class="font-medium field-value">{{ rapport.act.antenne.nom || '-' }}</span>
+            </div>
+      
+          </div>
+        </div>
+      </div>
+
+      <!-- Train Information Card -->
+      <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden info-card">
+        <div class="border-b border-gray-200 bg-gray-50 px-4 py-3 card-header">
+          <h3 class="text-lg font-medium text-gray-700">
+            <i class="fas fa-train mr-2 text-primary"></i>
+            Informations de Transport
+          </h3>
+        </div>
+        <div class="p-5 card-content">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="flex flex-col field-group">
+              <span class="text-sm text-gray-500 mb-1 field-label">Numéro de train</span>
+              <span class="font-medium field-value">{{ rapport.train.numero }}</span>
+            </div>
+            
+            <div class="flex flex-col field-group">
+              <span class="text-sm text-gray-500 mb-1 field-label">Date du train</span>
+              <span class="font-medium field-value">{{ formatDate(rapport.dateTrain) }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Detail Section -->
+      <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden info-card">
+        <div class="border-b border-gray-200 bg-gray-50 px-4 py-3 card-header">
+          <h3 class="text-lg font-medium text-gray-700">
+            <i class="fas fa-clipboard-list mr-2 text-primary"></i>
+            Détail du Rapport
+          </h3>
+        </div>
+        <div class="p-5 card-content">
+          <div>
+            <h4 class="text-sm text-gray-500 mb-1 field-label">Détail</h4>
+            <p class="p-3 bg-gray-50 rounded-md whitespace-pre-line text-area">{{ rapport.detail }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Enhanced Attachments Section -->
+      <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden info-card attachments-section">
+        <div class="border-b border-gray-200 bg-gray-50 px-4 py-3 card-header">
+          <h3 class="text-lg font-medium text-gray-700">
+            <i class="fas fa-paperclip mr-2 text-primary"></i>
+            Documents Joints
+            <span *ngIf="rapport.piecesJointes && rapport.piecesJointes.length > 0" class="ml-2 text-sm bg-primary text-white px-2 py-1 rounded-full">
+              {{ rapport.piecesJointes.length }}
+            </span>
+          </h3>
+        </div>
+        <div class="p-5">
+          <!-- Show message when no files -->
+          <div *ngIf="!rapport.piecesJointes || rapport.piecesJointes.length === 0" class="text-center py-8 text-gray-500 no-files">
+            <i class="fas fa-folder-open text-4xl mb-4"></i>
+            <p>Aucun document joint à ce rapport M</p>
+          </div>
+          
+          <!-- File list -->
+          <div *ngIf="rapport.piecesJointes && rapport.piecesJointes.length > 0" class="grid grid-cols-1 gap-3">
+            <div 
+              *ngFor="let piece of rapport.piecesJointes" 
+              class="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors duration-200 file-item"
+            >
+              <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                  <!-- File Icon -->
+                  <div class="flex-shrink-0">
+                    <i class="fas text-2xl file-icon" 
+                       [ngClass]="getFileIcon(piece.typeMime) + ' ' + getFileIconColor(piece.typeMime)">
+                    </i>
+                  </div>
+                  
+                  <!-- File Info -->
+                  <div class="flex-1 min-w-0 file-info">
+                    <h4 class="text-sm font-medium text-gray-900 truncate file-name">{{ piece.nomFichier }}</h4>
+                    <div class="flex items-center text-xs text-gray-500 mt-1 file-meta">
+                      <span>{{ formatFileSize(piece.taille) }}</span>
+                      <span class="mx-2">•</span>
+                      <span>{{ piece.typeMime }}</span>
+                      <span class="mx-2">•</span>
+                      <span>{{ formatDate(piece.dateCreation) }}</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="flex items-center space-x-2 file-actions">
+                  <!-- View Button (for viewable files) -->
+                  <button 
+                    *ngIf="canPreviewFile(piece.typeMime)"
+                    (click)="viewFile(piece)" 
+                    class="px-3 py-1.5 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition flex items-center text-sm view-btn"
+                    [disabled]="fileLoading"
+                    [title]="'Visualiser ' + piece.nomFichier"
+                  >
+                    <i class="fas fa-eye mr-1" [class.fa-spin]="fileLoading"></i>
+                    {{ getPreviewButtonText(piece.typeMime) }}
+                  </button>
+                  
+                  <!-- Download Button -->
+                  <button 
+                    (click)="downloadFile(piece)" 
+                    class="px-3 py-1.5 bg-primary text-white rounded-md hover:bg-primary-dark transition flex items-center text-sm download-btn"
+                    [disabled]="fileLoading"
+                    [title]="'Télécharger ' + piece.nomFichier"
+                  >
+                    <i class="fas fa-download mr-1" [class.fa-spin]="fileLoading"></i>
+                    Télécharger
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

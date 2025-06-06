@@ -1,33 +1,39 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams, HttpHeaders } from '@angular/common/http';
-import { Observable, of } from 'rxjs';
-import { map, catchError } from 'rxjs/operators';
-import { LettreSommationBillet } from '../core/models/lettre-sommation-billet.model';
-import { environment } from '../../environments/environment';
+import { Observable } from 'rxjs';
+import { AuthHttpService } from './auth-http.service';
+import { LettreSommationBillet, LettreSommationBilletRequest } from '../core/models/lettre-sommation-billet.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class LettreSommationBilletService {
-  private baseUrl = `${environment.apiUrl}/lettres-sommation-billet`;
-  private filesUrl = `${environment.apiUrl}/files`; // Assuming your file endpoint
 
-  constructor(private http: HttpClient) { }
+  constructor(private authHttp: AuthHttpService) {}
 
   getAllLettresSommationBillet(): Observable<LettreSommationBillet[]> {
-    return this.http.get<LettreSommationBillet[]>(this.baseUrl);
+    return this.authHttp.get<LettreSommationBillet[]>('/lettres-sommation-billet');
   }
 
   getLettreSommationBilletById(id: number): Observable<LettreSommationBillet> {
-    return this.http.get<LettreSommationBillet>(`${this.baseUrl}/${id}`);
+    return this.authHttp.get<LettreSommationBillet>(`/lettres-sommation-billet/${id}`);
   }
 
   createLettreSommationBillet(formData: FormData): Observable<LettreSommationBillet> {
-    return this.http.post<LettreSommationBillet>(this.baseUrl, formData);
+    return this.authHttp.upload<LettreSommationBillet>('/lettres-sommation-billet', formData);
+  }
+
+  // EXISTING METHOD - for file uploads
+  updateLettreSommationBillet(id: number, formData: FormData): Observable<LettreSommationBillet> {
+    return this.authHttp.uploadPut<LettreSommationBillet>(`/lettres-sommation-billet/${id}`, formData);
+  }
+
+  // NEW METHOD - for simple status updates without files
+  updateLettreSommationBilletStatus(id: number, lettre: Partial<LettreSommationBillet>): Observable<LettreSommationBillet> {
+    return this.authHttp.put<LettreSommationBillet>(`/lettres-sommation-billet/${id}`, lettre);
   }
 
   deleteLettreSommationBillet(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.baseUrl}/${id}`);
+    return this.authHttp.delete<void>(`/lettres-sommation-billet/${id}`);
   }
 
   searchLettresSommationBillet(
@@ -39,109 +45,56 @@ export class LettreSommationBilletService {
     dateDebut?: string,
     dateFin?: string
   ): Observable<LettreSommationBillet[]> {
-    let params = new HttpParams();
+    const params: any = {};
+    if (actId) params.actId = actId;
+    if (gareId) params.gareId = gareId;
+    if (trainId) params.trainId = trainId;
+    if (statut) params.statut = statut;
+    if (numeroBillet) params.numeroBillet = numeroBillet;
+    if (dateDebut) params.dateDebut = dateDebut;
+    if (dateFin) params.dateFin = dateFin;
 
-    if (actId) params = params.set('actId', actId.toString());
-    if (gareId) params = params.set('gareId', gareId.toString());
-    if (trainId) params = params.set('trainId', trainId.toString());
-    if (statut) params = params.set('statut', statut);
-    if (numeroBillet) params = params.set('numeroBillet', numeroBillet);
-    if (dateDebut) params = params.set('dateDebut', dateDebut);
-    if (dateFin) params = params.set('dateFin', dateFin);
-
-    return this.http.get<LettreSommationBillet[]>(`${this.baseUrl}/search`, { params });
+    return this.authHttp.get<LettreSommationBillet[]>('/lettres-sommation-billet/search', params);
   }
 
   getLettreSommationBilletByActId(actId: number): Observable<LettreSommationBillet[]> {
-    return this.http.get<LettreSommationBillet[]>(`${this.baseUrl}/act/${actId}`);
+    return this.authHttp.get<LettreSommationBillet[]>(`/lettres-sommation-billet/act/${actId}`);
   }
 
   getLettreSommationBilletByGareId(gareId: number): Observable<LettreSommationBillet[]> {
-    return this.http.get<LettreSommationBillet[]>(`${this.baseUrl}/gare/${gareId}`);
+    return this.authHttp.get<LettreSommationBillet[]>(`/lettres-sommation-billet/gare/${gareId}`);
   }
 
   getLettreSommationBilletByTrainId(trainId: number): Observable<LettreSommationBillet[]> {
-    return this.http.get<LettreSommationBillet[]>(`${this.baseUrl}/train/${trainId}`);
+    return this.authHttp.get<LettreSommationBillet[]>(`/lettres-sommation-billet/train/${trainId}`);
   }
 
   getLettreSommationBilletByStatut(statut: string): Observable<LettreSommationBillet[]> {
-    return this.http.get<LettreSommationBillet[]>(`${this.baseUrl}/statut/${statut}`);
+    return this.authHttp.get<LettreSommationBillet[]>(`/lettres-sommation-billet/statut/${statut}`);
   }
 
   getLettreSommationBilletByDateRange(dateDebut: string, dateFin: string): Observable<LettreSommationBillet[]> {
-    let params = new HttpParams()
-      .set('dateDebut', dateDebut)
-      .set('dateFin', dateFin);
-    
-    return this.http.get<LettreSommationBillet[]>(`${this.baseUrl}/dates`, { params });
+    return this.authHttp.get<LettreSommationBillet[]>('/lettres-sommation-billet/dates', { dateDebut, dateFin });
   }
 
   checkNumeroBillet(numeroBillet: string): Observable<boolean> {
-    let params = new HttpParams().set('numeroBillet', numeroBillet);
-    return this.http.get<boolean>(`${this.baseUrl}/check-numero-billet`, { params });
+    return this.authHttp.get<boolean>('/lettres-sommation-billet/check-numero-billet', { numeroBillet });
   }
 
-  updateBulkStatus(ids: number[], newStatus: string, commentaire: string): Observable<LettreSommationBillet[]> {
-    return this.http.put<LettreSommationBillet[]>(`${this.baseUrl}/bulk/status`, {
+  updateBulkStatus(ids: number[], newStatus: string, commentaire?: string): Observable<LettreSommationBillet[]> {
+    return this.authHttp.put<LettreSommationBillet[]>('/lettres-sommation-billet/bulk/status', {
       ids,
       newStatus,
       commentaire
     });
   }
 
-  updateLettreSommationBillet(id: number, updatedLettre: any): Observable<LettreSommationBillet> {
-    // Create FormData if we have files, otherwise do a regular PUT request
-    if (updatedLettre instanceof FormData) {
-      return this.http.put<LettreSommationBillet>(`${this.baseUrl}/${id}`, updatedLettre);
-    } else {
-      // For simple status updates without files
-      return this.http.put<LettreSommationBillet>(`${this.baseUrl}/${id}`, updatedLettre);
-    }
+  // FIXED METHOD - removed unused filename parameter
+  downloadFile(fileId: number): Observable<Blob> {
+    return this.authHttp.download(`/files/${fileId}/download`);
   }
 
-  // File operations
-  
-  /**
-   * Get file content as blob for viewing/downloading
-   */
-  getFileBlob(fileId: number): Observable<Blob> {
-    return this.http.get(`${this.filesUrl}/${fileId}`, {
-      responseType: 'blob'
-    });
-  }
-
-  /**
-   * Get file URL for viewing (returns the direct URL)
-   */
   getFileUrl(fileId: number): string {
-    return `${this.filesUrl}/${fileId}`;
-  }
-
-  /**
-   * Download file directly
-   */
-  downloadFile(fileId: number, fileName: string): Observable<Blob> {
-    return this.http.get(`${this.filesUrl}/${fileId}/download`, {
-      responseType: 'blob'
-    });
-  }
-
-  /**
-   * Get file metadata
-   */
-  getFileMetadata(fileId: number): Observable<any> {
-    return this.http.get(`${this.filesUrl}/${fileId}/metadata`);
-  }
-
-  /**
-   * Check if file exists and is accessible
-   */
-  checkFileAccess(fileId: number): Observable<boolean> {
-    return this.http.head(`${this.filesUrl}/${fileId}`, {
-      observe: 'response'
-    }).pipe(
-      map(response => response.status === 200),
-      catchError(() => of(false))
-    );
+    return `/api/v1/files/${fileId}/view`;
   }
 }

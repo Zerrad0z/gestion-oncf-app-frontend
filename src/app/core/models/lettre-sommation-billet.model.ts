@@ -42,3 +42,5 @@ export interface BulkUpdateStatusRequest {
   newStatus: StatutEnum;
   commentaire?: string;
 }
+
+export { StatutEnum };

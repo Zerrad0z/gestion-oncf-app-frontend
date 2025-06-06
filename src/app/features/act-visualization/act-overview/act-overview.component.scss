@@ -1,0 +1,180 @@
+@use 'tailwindcss/base';
+@use 'tailwindcss/components';
+@use 'tailwindcss/utilities';
+
+.act-overview {
+  .page-title {
+    @apply text-3xl font-bold text-gray-900;
+  }
+
+  .page-subtitle {
+    @apply text-gray-600 mt-2;
+  }
+
+  .stats-cards {
+    .stat-card {
+      @apply bg-white border rounded-xl px-6 py-4 shadow-sm;
+      min-width: 140px;
+      
+      &:hover {
+        @apply shadow-md transform translate-y-[-1px];
+        transition: all 0.2s ease;
+      }
+    }
+  }
+
+  .section-card {
+    @apply bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden;
+    
+    .section-header {
+      @apply bg-gradient-to-r from-oncf-orange-50 to-oncf-orange-100 px-6 py-4 border-b border-gray-200;
+      
+      .section-icon {
+        @apply bg-oncf-orange-500 text-white w-10 h-10 rounded-lg flex items-center justify-center;
+      }
+      
+      .section-name {
+        @apply text-xl font-semibold text-gray-900;
+      }
+      
+      .section-stats {
+        .stat {
+          min-width: 80px;
+        }
+      }
+    }
+    
+    .acts-grid {
+      .act-card {
+        @apply bg-gray-50 border border-gray-200 rounded-lg p-4 cursor-pointer;
+        transition: all 0.2s ease;
+        
+        &:hover {
+          @apply shadow-md border-oncf-orange-300 transform translate-y-[-1px];
+        }
+        
+        .act-header {
+          .act-avatar {
+            @apply bg-gradient-to-br from-oncf-orange-500 to-oncf-orange-600 text-white w-10 h-10 rounded-lg flex items-center justify-center;
+          }
+          
+          .act-name {
+            @apply text-sm font-semibold text-gray-900;
+          }
+          
+          .act-matricule {
+            @apply text-xs text-gray-600;
+          }
+        }
+        
+        .document-stats {
+          .stat-item {
+            .stat-icon {
+              @apply w-8 h-8 rounded-lg flex items-center justify-center mx-auto mb-1;
+            }
+          }
+        }
+        
+        .monthly-activity {
+          @apply bg-white rounded-lg p-3 border border-gray-200;
+          
+          .progress-item {
+            @apply mb-1;
+            
+            &:last-child {
+              @apply mb-0;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .loading-state {
+    @apply flex items-center justify-center py-12;
+  }
+
+  .error-state {
+    @apply bg-red-50 border border-red-200 rounded-xl p-6 text-center;
+  }
+
+  .no-acts {
+    @apply text-center py-8;
+  }
+}
+
+@media (max-width: 768px) {
+  .act-overview {
+    .page-header {
+      @apply flex flex-col gap-4;
+      
+      .stats-cards {
+        @apply flex flex-col gap-2;
+      }
+    }
+
+    .section-card {
+      .section-header {
+        @apply flex flex-col gap-3;
+        
+        .section-stats {
+          @apply flex flex-wrap justify-center gap-4;
+        }
+      }
+    }
+  }
+}
+
+// Custom scrollbar
+.custom-scrollbar {
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 3px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 3px;
+    
+    &:hover {
+      background: #94a3b8;
+    }
+  }
+}
+
+// ONCF Brand Colors
+:root {
+  // Primary colors (ONCF Orange)
+  --oncf-orange-50: #fff7ed;
+  --oncf-orange-100: #ffedd5;
+  --oncf-orange-200: #fed7aa;
+  --oncf-orange-300: #fdba74;
+  --oncf-orange-400: #fb923c;
+  --oncf-orange-500: #f97316;
+  --oncf-orange-600: #ea580c;
+  --oncf-orange-700: #c2410c;
+  --oncf-orange-800: #9a3412;
+  --oncf-orange-900: #7c2d12;
+
+  // Neutral colors
+  --gray-50: #f9fafb;
+  --gray-100: #f3f4f6;
+  --gray-200: #e5e7eb;
+  --gray-300: #d1d5db;
+  --gray-400: #9ca3af;
+  --gray-500: #6b7280;
+  --gray-600: #4b5563;
+  --gray-700: #374151;
+  --gray-800: #1f2937;
+  --gray-900: #111827;
+
+  // System colors
+  --success: #10b981;
+  --warning: #f59e0b;
+  --error: #ef4444;
+  --info: #3b82f6;
+}

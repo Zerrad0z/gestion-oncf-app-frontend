@@ -2,8 +2,8 @@
 <div class="container mx-auto px-4 py-8">
   <div class="flex justify-between items-center mb-8">
     <div>
-      <h1 class="text-3xl font-bold text-gray-900">Agents de Contrôle Technique (ACT)</h1>
-      <p class="text-gray-600 mt-1">Gestion des agents de contrôle technique du réseau</p>
+      <h1 class="text-3xl font-bold text-gray-900">Agent Commercial Train (ACT)</h1>
+      <p class="text-gray-600 mt-1">Gestion des ACTs</p>
       <div class="h-1 w-24 bg-orange-500 mt-4"></div>
     </div>
     
@@ -33,13 +33,13 @@
   <div *ngIf="!loading && acts.length === 0" class="bg-white rounded-lg shadow p-8 text-center">
     <i class="fas fa-user-tie text-5xl text-gray-300 mb-4"></i>
     <h3 class="text-xl font-medium text-gray-700 mb-2">Aucun ACT trouvé</h3>
-    <p class="text-gray-500 mb-4">Vous n'avez encore ajouté aucun agent de contrôle technique.</p>
+    <p class="text-gray-500 mb-4">Vous n'avez encore ajouté aucun ACT.</p>
     <a 
       routerLink="/configuration/agents/new" 
       class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-orange-600 bg-orange-100 hover:bg-orange-200"
     >
       <i class="fas fa-plus mr-2"></i>
-      Ajouter votre premier ACT
+      Ajouter un ACT
     </a>
   </div>
   

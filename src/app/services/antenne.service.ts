@@ -1,40 +1,36 @@
-// src/app/core/services/antenne.service.ts
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { AuthHttpService } from './auth-http.service';
 import { Antenne } from '../core/models/antenne.model';
-import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AntenneService {
-  private apiUrl = `${environment.apiUrl}/antennes`;
 
-  constructor(private http: HttpClient) { }
+  constructor(private authHttp: AuthHttpService) {}
 
   getAllAntennes(): Observable<Antenne[]> {
-    return this.http.get<Antenne[]>(this.apiUrl);
+    return this.authHttp.get<Antenne[]>('/antennes');
   }
 
   getAntenneById(id: number): Observable<Antenne> {
-    return this.http.get<Antenne>(`${this.apiUrl}/${id}`);
+    return this.authHttp.get<Antenne>(`/antennes/${id}`);
   }
 
   createAntenne(antenne: Partial<Antenne>): Observable<Antenne> {
-    return this.http.post<Antenne>(this.apiUrl, antenne);
+    return this.authHttp.post<Antenne>('/antennes', antenne);
   }
 
   updateAntenne(id: number, antenne: Partial<Antenne>): Observable<Antenne> {
-    return this.http.put<Antenne>(`${this.apiUrl}/${id}`, antenne);
+    return this.authHttp.put<Antenne>(`/antennes/${id}`, antenne);
   }
 
   deleteAntenne(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+    return this.authHttp.delete<void>(`/antennes/${id}`);
   }
 
-  // filtering antennes by section
   getAntennesBySection(sectionId: number): Observable<Antenne[]> {
-    return this.http.get<Antenne[]>(`${this.apiUrl}/bysection/${sectionId}`);
+    return this.authHttp.get<Antenne[]>(`/antennes/bysection/${sectionId}`);
   }
 }
