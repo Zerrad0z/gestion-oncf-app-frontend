@@ -66,7 +66,6 @@
         .quick-stat {
           @apply text-center p-4 rounded-lg;
           
-          // Fixed: Use specific class names instead of color utility classes
           .stat-value-blue {
             @apply text-blue-600 text-2xl font-bold;
           }
@@ -215,7 +214,6 @@
   }
 }
 
-// Status color classes - Fixed circular dependency
 .status-green {
   @apply bg-green-100 text-green-700;
 }

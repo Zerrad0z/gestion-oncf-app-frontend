@@ -113,7 +113,7 @@ export class LettreSommationCarteListComponent implements OnInit {
 
     this.filteredLettres = result;
     this.totalItems = result.length;
-    this.page = 0; // Reset to first page when filters change
+    this.page = 0; 
   }
 
   resetFilters(): void {

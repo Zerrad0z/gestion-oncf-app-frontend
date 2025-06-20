@@ -1,4 +1,3 @@
-// src/app/features/administration/users/user-form/user-form.component.ts
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
@@ -21,9 +20,7 @@ export class UserFormComponent implements OnInit {
   loadingActs = false;
   error: string | null = null;
   submitAttempted = false;
-  acts: any[] = []; // Replace with your ACT model
-  
-  // Make enum available in template
+  acts: any[] = []; 
   UserRole = UserRole;
 
   constructor(
@@ -38,7 +35,6 @@ export class UserFormComponent implements OnInit {
     this.initForm();
     //this.loadActs();
     
-    // Check if we're in edit mode
     const id = this.route.snapshot.params['id'];
     if (id) {
       this.isEditMode = true;
@@ -66,7 +62,6 @@ export class UserFormComponent implements OnInit {
     const password = group.get('motDePasse')?.value;
     const confirmPassword = group.get('confirmMotDePasse')?.value;
     
-    // If we're in edit mode and no new password is being set, don't validate
     if ((!password && !confirmPassword) || (password === '' && confirmPassword === '')) {
       return null;
     }
@@ -93,7 +88,6 @@ export class UserFormComponent implements OnInit {
     this.loading = true;
     this.userService.getUserById(id).subscribe({
       next: (user) => {
-        // Remove password fields for edit mode
         const formData = {
           matricule: user.matricule,
           nomPrenom: user.nomPrenom,
@@ -126,7 +120,7 @@ export class UserFormComponent implements OnInit {
     
     this.loading = true;
     
-    // Create data object (remove confirmPassword)
+    // Create data object 
     const { confirmMotDePasse, ...userData } = this.userForm.value;
     
     // If editing and no password provided, remove it from request
@@ -167,7 +161,6 @@ export class UserFormComponent implements OnInit {
     console.error(err);
   }
   
-  // Getter for easy access to form controls in the template
   get f() {
     return this.userForm.controls;
   }

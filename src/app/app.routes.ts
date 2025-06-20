@@ -29,11 +29,11 @@ export const routes: Routes = [
     canActivate: [AuthGuard]
   },
   
-  // ✅ ACT Visualization routes - Accessible by ENCADRANT, SUPERVISEUR, and ADMIN
+  //  ACT Visualization routes - Accessible by ENCADRANT, SUPERVISEUR, and ADMIN
   {
     path: 'act-visualization',
     canActivate: [AuthGuard, RoleGuard],
-    data: { roles: ['ENCADRANT', 'SUPERVISEUR', 'ADMIN'] }, // ✅ Added ENCADRANT
+    data: { roles: ['ENCADRANT', 'SUPERVISEUR', 'ADMIN'] }, 
     children: ACT_VISUALIZATION_ROUTES
   },
   

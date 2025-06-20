@@ -1,4 +1,3 @@
-// src/app/core/interceptors/jwt.interceptor.ts
 import { Injectable } from '@angular/core';
 import { HttpRequest, HttpHandler, HttpEvent, HttpInterceptor, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError, BehaviorSubject } from 'rxjs';
@@ -54,7 +53,6 @@ export class JwtInterceptor implements HttpInterceptor {
   }
 
   private isAuthUrl(url: string): boolean {
-    // Updated to match your actual auth endpoints
     const isAuth = url.includes('/api/v1/auth/login') || 
                    url.includes('/api/v1/auth/logout') || 
                    url.includes('/api/v1/auth/');

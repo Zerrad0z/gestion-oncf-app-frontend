@@ -11,7 +11,6 @@ import { catchError, throwError } from 'rxjs';
 
 // Functional JWT Interceptor
 const jwtInterceptor = (req: HttpRequest<unknown>, next: HttpHandlerFn) => {
-  // Skip auth endpoints
   if (req.url.includes('/api/v1/auth/')) {
     return next(req);
   }
@@ -20,7 +19,6 @@ const jwtInterceptor = (req: HttpRequest<unknown>, next: HttpHandlerFn) => {
   const token = localStorage.getItem('auth_token');
   
   if (token) {
-    // Clone request with Authorization header
     const authReq = req.clone({
       headers: req.headers.set('Authorization', `Bearer ${token}`)
     });
@@ -51,7 +49,6 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter(routes),
     provideAnimations(),
-    // Use modern functional interceptors
     provideHttpClient(withInterceptors([jwtInterceptor, errorInterceptor])),
     provideToastr({
       timeOut: 3000,

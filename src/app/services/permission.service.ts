@@ -1,4 +1,3 @@
-// src/app/services/permission.service.ts (UPDATED with ACT Visualization permissions)
 import { Injectable } from '@angular/core';
 import { AuthService } from './auth.service';
 import { LettreSommationCarte } from '../core/models/lettre-sommation-carte.model';
@@ -12,7 +11,7 @@ export class PermissionService {
   constructor(private authService: AuthService) {}
 
   // ===============================
-  // ACT VISUALIZATION PERMISSIONS (NEW)
+  // ACT VISUALIZATION PERMISSIONS 
   // ===============================
   
   // ACT Overview and Detail - ENCADRANT, SUPERVISEUR, and ADMIN can access
@@ -280,7 +279,7 @@ export class PermissionService {
     return this.canBulkUpdateStatus();
   }
 
-  // For ACT visualization UI (NEW)
+  // For ACT visualization UI 
   shouldShowACTVisualizationMenu(): boolean {
     return this.canAccessACTVisualization();
   }
@@ -293,9 +292,6 @@ export class PermissionService {
     return this.canViewACTDetail();
   }
 
-  // ===============================
-  // EXISTING METHODS (UNCHANGED)
-  // ===============================
   
   getAvailableActions(document: LettreSommationCarte): string[] {
     const actions: string[] = [];

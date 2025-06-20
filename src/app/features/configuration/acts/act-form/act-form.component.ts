@@ -1,4 +1,3 @@
-// src/app/features/configuration/acts/act-form/act-form.component.ts
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
@@ -127,7 +126,6 @@ export class ActFormComponent implements OnInit {
     console.error(err);
   }
   
-  // Getter for easy access to form controls in the template
   get f() {
     return this.actForm.controls;
   }

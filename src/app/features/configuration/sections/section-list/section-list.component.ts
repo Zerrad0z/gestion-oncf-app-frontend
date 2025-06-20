@@ -15,8 +15,6 @@ export class SectionListComponent implements OnInit {
   sections: Section[] = [];
   loading = false;
   error: string | null = null;
-  
-  // Delete modal properties
   showDeleteModal = false;
   sectionToDelete: Section | null = null;
 

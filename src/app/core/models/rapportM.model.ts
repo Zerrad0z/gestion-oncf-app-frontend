@@ -11,13 +11,13 @@ export interface RapportM {
   objet: string; // Objet (texte)
   categorie: CategorieRapportEnum; // Catégorie (liste)
   detail: string; // Détail (texte)
-  act: ACT; // ACT information - same as working example
-  train: Train; // Train information - same as working example
+  act: ACT; // ACT information 
+  train: Train; // Train information 
   dateTrain: string; // Date du train
-  utilisateur?: any; // Same as working example
-  dateCreationSysteme?: string; // Same as working example
-  dateDerniereModification?: string; // Same as working example
-  piecesJointes?: PieceJointe[]; // Same as working example
+  utilisateur?: any; 
+  dateCreationSysteme?: string; 
+  dateDerniereModification?: string; 
+  piecesJointes?: PieceJointe[]; 
 }
 
 export interface RapportMRequest {

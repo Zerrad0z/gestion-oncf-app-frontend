@@ -22,12 +22,10 @@ export class LettreSommationBilletService {
     return this.authHttp.upload<LettreSommationBillet>('/lettres-sommation-billet', formData);
   }
 
-  // EXISTING METHOD - for file uploads
   updateLettreSommationBillet(id: number, formData: FormData): Observable<LettreSommationBillet> {
     return this.authHttp.uploadPut<LettreSommationBillet>(`/lettres-sommation-billet/${id}`, formData);
   }
 
-  // NEW METHOD - for simple status updates without files
   updateLettreSommationBilletStatus(id: number, lettre: Partial<LettreSommationBillet>): Observable<LettreSommationBillet> {
     return this.authHttp.put<LettreSommationBillet>(`/lettres-sommation-billet/${id}`, lettre);
   }
@@ -89,7 +87,6 @@ export class LettreSommationBilletService {
     });
   }
 
-  // FIXED METHOD - removed unused filename parameter
   downloadFile(fileId: number): Observable<Blob> {
     return this.authHttp.download(`/files/${fileId}/download`);
   }

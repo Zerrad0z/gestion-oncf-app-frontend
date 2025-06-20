@@ -1,4 +1,3 @@
-// src/app/features/administration/administration.routes.ts
 import { Routes } from '@angular/router';
 import { UserListComponent } from './users/user-list/user-list.component';
 import { UserFormComponent } from './users/user-form/user-form.component';

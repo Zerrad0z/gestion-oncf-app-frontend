@@ -36,7 +36,7 @@ export class RapportMFormComponent implements OnInit {
   
   // Dropdown data
   categories = Object.values(CategorieRapportEnum);
-  gammesTrains = ['TNR', 'TL', 'TGV']; // Independent field, not related to actual trains
+  gammesTrains = ['TNR', 'TL', 'TGV']; 
   
   // Filtered options
   filteredActs: any[] = [];
@@ -56,7 +56,7 @@ export class RapportMFormComponent implements OnInit {
 
   ngOnInit(): void {
     this.initializeForm();
-    this.loadAllTrains(); // Load trains on component init
+    this.loadAllTrains(); 
     
     // Check if we're in edit mode
     this.route.paramMap.subscribe(params => {
@@ -81,9 +81,9 @@ export class RapportMFormComponent implements OnInit {
         antenne: [null]
       }),
       train: this.fb.group({
-        id: [null, Validators.required], // This is the main field we need
-        numero: [''], // Display only, will be set automatically
-        gamme: [''] // Independent field, not related to selected train
+        id: [null, Validators.required], 
+        numero: [''], 
+        gamme: [''] 
       }),
       references: ['', Validators.required],
       dateEnvoi: [new Date().toISOString().split('T')[0], Validators.required],
@@ -109,7 +109,7 @@ export class RapportMFormComponent implements OnInit {
           train: {
             id: rapport.train.id,
             numero: rapport.train.numero,
-            gamme: '' // Independent field, will be set independently by user if needed
+            gamme: '' 
           },
           references: rapport.references,
           dateEnvoi: rapport.dateEnvoi,
@@ -156,13 +156,11 @@ export class RapportMFormComponent implements OnInit {
       
       if (selectedTrain) {
         console.log('Selected train:', selectedTrain);
-        
-        // Set train form values (gamme is independent, so keep existing value)
         this.form.patchValue({
           train: {
             id: selectedTrain.id,
             numero: selectedTrain.numero,
-            gamme: this.form.get('train.gamme')?.value || '' // Keep existing gamme value
+            gamme: this.form.get('train.gamme')?.value || '' 
           }
         });
         
@@ -174,7 +172,7 @@ export class RapportMFormComponent implements OnInit {
         train: {
           id: null,
           numero: '',
-          gamme: this.form.get('train.gamme')?.value || '' // Keep existing gamme value
+          gamme: this.form.get('train.gamme')?.value || '' 
         }
       });
     }
@@ -383,7 +381,6 @@ export class RapportMFormComponent implements OnInit {
       categorie: this.form.value.categorie,
       detail: this.form.value.detail,
       dateTrain: this.form.value.dateTrain
-      // Note: gamme is not sent to backend as it's not part of RapportM model
     };
     
     formData.append('rapport', new Blob([JSON.stringify(rapportData)], {

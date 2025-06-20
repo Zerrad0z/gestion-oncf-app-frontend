@@ -1,4 +1,3 @@
-// act.model.ts
 import { Antenne } from './antenne.model';
 
 export interface ACT {

@@ -1,4 +1,3 @@
-// src/app/core/services/auth-http.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
@@ -125,9 +124,7 @@ export class AuthHttpService {
   }
 
   // File upload method
-  // File upload method for PUT requests (updates)
 uploadPut<T>(endpoint: string, formData: FormData): Observable<T> {
-  // For file uploads, don't set Content-Type (browser handles it)
   const headers = this.createHeaders(false);
   
   return this.http.put<T>(`${this.baseUrl}${endpoint}`, formData, { 
@@ -137,9 +134,7 @@ uploadPut<T>(endpoint: string, formData: FormData): Observable<T> {
   );
 }
 
-// Keep your existing upload method for POST requests (creates)
 upload<T>(endpoint: string, formData: FormData): Observable<T> {
-  // For file uploads, don't set Content-Type (browser handles it)
   const headers = this.createHeaders(false);
   
   return this.http.post<T>(`${this.baseUrl}${endpoint}`, formData, { 

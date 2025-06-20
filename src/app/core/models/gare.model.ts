@@ -1,4 +1,3 @@
-// src/app/core/models/gare.model.ts
 export interface Gare {
   id: number;
   nom: string;

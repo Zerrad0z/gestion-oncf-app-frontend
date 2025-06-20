@@ -1,4 +1,3 @@
-// src/app/app.component.ts
 import { Component, OnInit, OnDestroy, PLATFORM_ID, Inject } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
@@ -44,7 +43,6 @@ export class AppComponent implements OnInit, OnDestroy {
   ) {}
   
   ngOnInit() {
-    // Initialize sidebar state based on screen size - only on browser
     if (isPlatformBrowser(this.platformId)) {
       this.sidebarCollapsed = window.innerWidth < 768;
       
@@ -130,21 +128,13 @@ export class AppComponent implements OnInit, OnDestroy {
         break;
     }
   }
-  
-  // DEBUG METHOD - Add this temporarily
-  debugClick(section: string) {
-    console.log('Menu clicked:', section);
-    console.log('Current user:', this.currentUser);
-    console.log('Can access administration:', this.canAccessAdministration());
-    console.log('Can access configuration:', this.canAccessConfiguration());
-  }
+
   
   toggleSidebar() {
     this.sidebarCollapsed = !this.sidebarCollapsed;
   }
   
   toggleNotifications() {
-    // Implement notification panel toggle
     console.log('Toggle notifications');
   }
   
@@ -188,7 +178,6 @@ canViewACTDetail(): boolean {
   return this.permissionService.canViewACTDetail();
 }
 
-// Helper method to check if user can see detailed statistics
 canViewDetailedStats(): boolean {
   return this.permissionService.canViewDetailedStats();
 }

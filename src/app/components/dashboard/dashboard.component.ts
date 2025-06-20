@@ -1,4 +1,3 @@
-// src/app/components/dashboard/dashboard.component.ts (Enhanced)
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
@@ -111,7 +110,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       // Calculate ACT stats
       this.stats.acts = {
         total: acts.length,
-        active: acts.length, // Assuming all are active for now
+        active: acts.length, 
         sections: sections.length
       };
 

@@ -20,9 +20,7 @@ export class AntenneListComponent implements OnInit {
   loading = false;
   error: string | null = null;
   selectedSectionId: number | null = null;
-  
-  // Delete modal properties
-  showDeleteModal = false;
+    showDeleteModal = false;
   antenneToDelete: Antenne | null = null;
 
   constructor(

@@ -1,4 +1,3 @@
-// src/app/features/act-visualization/act-visualization.routes.ts
 import { Routes } from '@angular/router';
 
 export const ACT_VISUALIZATION_ROUTES: Routes = [

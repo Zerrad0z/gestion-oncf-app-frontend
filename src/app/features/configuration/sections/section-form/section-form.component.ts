@@ -24,7 +24,7 @@ export class SectionFormComponent implements OnInit {
     private sectionService: SectionService,
     private router: Router,
     private route: ActivatedRoute,
-    private permissionService: PermissionService  // Add this
+    private permissionService: PermissionService  
   ) {}
 
   ngOnInit(): void {
@@ -96,7 +96,7 @@ export class SectionFormComponent implements OnInit {
     }
     
     this.loading = true;
-    this.error = null; // Clear previous errors
+    this.error = null; 
     
     const sectionData = this.sectionForm.value;
     console.log('Sending section data:', sectionData);

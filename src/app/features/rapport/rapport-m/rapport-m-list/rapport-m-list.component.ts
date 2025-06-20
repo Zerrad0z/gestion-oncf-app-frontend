@@ -61,25 +61,11 @@ export class RapportMListComponent implements OnInit {
   this.loading = true;
   this.rapportMService.getAllRapportsM()
     .subscribe({
-      next: (data) => {
-        // ✅ DETAILED DEBUG LOGGING
-        console.log('=== DETAILED LIST DEBUG ===');
-        console.log('Raw response:', data);
-        console.log('Data type:', typeof data);
-        console.log('Is array?', Array.isArray(data));
-        console.log('Array length:', data?.length);
-        
+      next: (data) => {        
         if (data && data.length > 0) {
           const firstItem = data[0];
           console.log('First item full object:', firstItem);
           console.log('Available properties:', Object.keys(firstItem));
-          
-          // Check specific fields
-          console.log('references:', firstItem.references);
-          console.log('objet:', firstItem.objet);
-          console.log('dateEnvoi:', firstItem.dateEnvoi);
-          console.log('train:', firstItem.train);
-          console.log('act:', firstItem.act);
         }
         
         this.rapports = data;
@@ -233,7 +219,7 @@ export class RapportMListComponent implements OnInit {
         const ids = this.selectedRapports.map(r => r.id);
         const request = {
           ids: ids,
-          newStatus: 'UPDATED', // You may need to adjust this based on your requirements
+          newStatus: 'UPDATED', 
           commentaire: this.bulkComment
         };
         

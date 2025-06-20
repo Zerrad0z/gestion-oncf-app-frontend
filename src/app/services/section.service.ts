@@ -1,4 +1,3 @@
-// src/app/services/section.service.ts
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { AuthHttpService } from './auth-http.service';

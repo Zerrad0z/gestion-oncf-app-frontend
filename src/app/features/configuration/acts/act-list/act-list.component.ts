@@ -1,4 +1,3 @@
-// src/app/features/configuration/acts/act-list/act-list.component.ts
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';

@@ -123,7 +123,6 @@ export class LettreSommationBilletDetailComponent implements OnInit {
       }
     });
   }
-  // Replace these three methods in your lettre-sommation-billet-detail.component.ts
 
 changeStatut(newStatut: StatutEnum): void {
   if (!this.lettreId || !this.lettre) return;
@@ -140,13 +139,11 @@ changeStatut(newStatut: StatutEnum): void {
 
   dialogRef.afterClosed().subscribe(result => {
     if (result && this.lettreId && this.lettre) {
-      // Create a simple object with only the fields that need to be updated
       const statusUpdate = {
         statut: newStatut,
         dateTraitement: newStatut === StatutEnum.REGULARISEE ? new Date().toISOString().split('T')[0] : this.lettre.dateTraitement
       };
       
-      // FIXED: Use the new status update method instead of the FormData method
       this.lettreSommationBilletService.updateLettreSommationBilletStatus(this.lettreId, statusUpdate)
         .subscribe({
           next: (data) => {
@@ -173,7 +170,6 @@ downloadFile(piece: PieceJointe): void {
 
   this.fileLoading = true;
   
-  // FIXED: Only pass the fileId parameter
   this.lettreSommationBilletService.downloadFile(piece.id)
     .subscribe({
       next: (blob: Blob) => {
@@ -195,7 +191,6 @@ downloadCurrentFile(): void {
   if (this.selectedFileId && this.selectedFileName) {
     this.fileLoading = true;
     
-    // FIXED: Only pass the fileId parameter
     this.lettreSommationBilletService.downloadFile(this.selectedFileId)
       .subscribe({
         next: (blob: Blob) => {

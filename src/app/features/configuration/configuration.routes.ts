@@ -9,7 +9,7 @@ import { GareListComponent } from './gares/gare-list/gare-list.component';
 import { GareFormComponent } from './gares/gare-form/gare-form.component';
 
 export const CONFIGURATION_ROUTES: Routes = [
-  // Root path for configuration to avoid redirection issues
+  
   { path: '', redirectTo: 'sections', pathMatch: 'full' },
   
   // Section routes

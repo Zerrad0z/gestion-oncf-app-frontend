@@ -1,4 +1,3 @@
-// src/app/features/configuration/antennes/antenne-form/antenne-form.component.ts
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -11,7 +10,6 @@ import { SectionService } from '../../../../services/section.service';
   selector: 'app-antenne-form',
   templateUrl: './antenne-form.component.html',
   styleUrls: ['./antenne-form.component.scss'],
-  // Add these imports for Angular 19
   imports: [CommonModule, ReactiveFormsModule, RouterLink],
   standalone: true
 })
@@ -121,7 +119,6 @@ export class AntenneFormComponent implements OnInit {
     }
   }
   
-  // Getter for easy access to form controls in the template
   get f() {
     return this.antenneForm.controls;
   }

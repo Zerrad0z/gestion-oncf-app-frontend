@@ -1,4 +1,3 @@
-// src/app/features/administration/users/user-list/user-list.component.ts
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
@@ -25,7 +24,6 @@ export class UserListComponent implements OnInit {
   statusFilter: string = '';
   searchTerm: string = '';
   
-  // Make enum available in template
   UserRole = UserRole;
 
   constructor(private userService: UserService) {}

@@ -65,7 +65,7 @@ export class LettreSommationCarteFormComponent implements OnInit {
   
   // Dropdown data
   statuts = [StatutEnum.REGULARISEE, StatutEnum.NON_REGULARISEE];
-  gammesTrains = ['TNR', 'TL', 'TGV']; // Independent field, not related to actual trains
+  gammesTrains = ['TNR', 'TL', 'TGV']; 
   
   // Filtered options
   filteredActs: any[] = [];
@@ -84,28 +84,24 @@ export class LettreSommationCarteFormComponent implements OnInit {
     private gareService: GareService,
     private trainService: TrainService,
     private lettreSommationCarteService: LettreSommationCarteService,
-    public permissionService: PermissionService, // Make it public for template access
+    public permissionService: PermissionService, 
     private authService: AuthService,
   ) { }
 
   ngOnInit(): void {
-    console.log('🚀 Component initializing...');
     
     // Check authentication and permissions first
     this.currentUser = this.authService.getCurrentUser();
-    console.log('👤 Current user:', this.currentUser);
     
     if (!this.currentUser) {
-      console.log('❌ No user found, redirecting to login');
       this.router.navigate(['/login']);
       return;
     }
 
-    // Set permission flags using AuthService directly
     this.canCreate = this.authService.isEncadrant();
     this.canUpdate = this.authService.isEncadrant() || this.authService.isAdmin();
     
-    console.log('🔒 Permissions:', {
+    console.log(' Permissions:', {
       canCreate: this.canCreate,
       canUpdate: this.canUpdate,
       userRole: this.userRole
@@ -120,11 +116,9 @@ export class LettreSommationCarteFormComponent implements OnInit {
       if (id) {
         this.lettreId = +id;
         this.isEditMode = true;
-        console.log('✏️ Edit mode activated for ID:', this.lettreId);
         
         // Check permissions for edit mode
         if (!this.canUpdate) {
-          console.log('❌ No update permission');
           alert(this.getAccessDeniedMessage('edit'));
           this.router.navigate(['/lettres-sommation/carte']);
           return;
@@ -132,10 +126,8 @@ export class LettreSommationCarteFormComponent implements OnInit {
         
         this.loadLettreSommationCarte(this.lettreId);
       } else {
-        console.log('➕ Create mode activated');
         // Check permissions for create mode
         if (!this.canCreate) {
-          console.log('❌ No create permission');
           alert(this.getAccessDeniedMessage('create'));
           this.router.navigate(['/lettres-sommation/carte']);
           return;
@@ -144,11 +136,9 @@ export class LettreSommationCarteFormComponent implements OnInit {
     });
     
     this.setupTypeaheadSearch();
-    console.log('✅ Component initialization complete');
   }
 
   initializeForm(): void {
-    console.log('📝 Initializing form...');
     
     this.form = this.fb.group({
       act: this.fb.group({
@@ -158,14 +148,14 @@ export class LettreSommationCarteFormComponent implements OnInit {
         antenne: [null]
       }),
       train: this.fb.group({
-        id: [null, Validators.required], // This is the main field we need
-        numero: [''], // Display only, will be set automatically
-        gamme: [''] // Independent field, not related to selected train
+        id: [null, Validators.required], 
+        numero: [''], 
+        gamme: [''] 
       }),
       gare: this.fb.group({
         id: [null, Validators.required],
         nom: ['', Validators.required],
-        gareReglement: [''] // Move gareReglement inside gare group
+        gareReglement: [''] 
       }),
       dateCreation: [new Date().toISOString().split('T')[0], Validators.required],
       dateInfraction: [new Date().toISOString().split('T')[0], Validators.required],
@@ -179,18 +169,16 @@ export class LettreSommationCarteFormComponent implements OnInit {
       dateRegularisation: ['']
     });
     
-    console.log('📝 Form structure created:', this.form.value);
-    
-    // Add listener for status changes to handle regularization fields
-    this.form.get('statut')?.valueChanges.subscribe(value => {
-      console.log('📊 Status changed to:', value);
+    console.log(' Form structure created:', this.form.value);
+        this.form.get('statut')?.valueChanges.subscribe(value => {
+      console.log(' Status changed to:', value);
       
       if (value === 'REGULARISEE') {
-        console.log('✅ Adding regularization validators');
+        console.log(' Adding regularization validators');
         this.form.get('dateRegularisation')?.setValidators([Validators.required]);
         this.form.get('numeroPpRegularisation')?.setValidators([Validators.required]);
       } else {
-        console.log('❌ Removing regularization validators');
+        console.log(' Removing regularization validators');
         this.form.get('dateRegularisation')?.clearValidators();
         this.form.get('numeroPpRegularisation')?.clearValidators();
         this.form.get('dateRegularisation')?.setValue('');
@@ -199,34 +187,33 @@ export class LettreSommationCarteFormComponent implements OnInit {
       this.form.get('dateRegularisation')?.updateValueAndValidity();
       this.form.get('numeroPpRegularisation')?.updateValueAndValidity();
       
-      console.log('📊 Form validity after status change:', this.form.valid);
+      console.log(' Form validity after status change:', this.form.valid);
     });
     
-    // Add form value changes listener for debugging
     this.form.valueChanges.subscribe(() => {
-      console.log('📊 Form validity changed:', this.form.valid);
+      console.log(' Form validity changed:', this.form.valid);
       if (!this.form.valid) {
-        console.log('❌ Form errors:', this.getFormValidationErrors());
+        console.log(' Form errors:', this.getFormValidationErrors());
       }
     });
     
-    console.log('✅ Form initialization complete');
+    console.log(' Form initialization complete');
   }
 
   loadLettreSommationCarte(id: number): void {
-    console.log('📖 Loading lettre sommation carte with ID:', id);
+    console.log(' Loading lettre sommation carte with ID:', id);
     this.loading = true;
     
     this.lettreSommationCarteService.getLettreSommationCarteById(id).subscribe({
       next: (lettre) => {
-        console.log('📖 Lettre loaded:', lettre);
+        console.log(' Lettre loaded:', lettre);
         
         // Check if current user can edit this specific document
         this.canEditThisDocument = this.canEditDocument(lettre);
-        console.log('🔒 Can edit this document:', this.canEditThisDocument);
+        console.log(' Can edit this document:', this.canEditThisDocument);
         
         if (!this.canEditThisDocument) {
-          console.log('❌ Cannot edit this document');
+          console.log(' Cannot edit this document');
           alert(this.getAccessDeniedMessage('edit'));
           this.router.navigate(['/lettres-sommation/carte']);
           return;
@@ -259,7 +246,7 @@ export class LettreSommationCarteFormComponent implements OnInit {
           commentaires: lettre.commentaires
         };
         
-        console.log('📝 Patching form with:', formValue);
+        console.log(' Patching form with:', formValue);
         this.form.patchValue(formValue);
         
         // Set regularization fields if status is REGULARISEE
@@ -267,14 +254,14 @@ export class LettreSommationCarteFormComponent implements OnInit {
           this.form.patchValue({
             dateRegularisation: lettre.dateTraitement.split('T')[0]
           });
-          console.log('📅 Set regularization date:', lettre.dateTraitement.split('T')[0]);
+          console.log(' Set regularization date:', lettre.dateTraitement.split('T')[0]);
         }
         
         this.loading = false;
-        console.log('✅ Form loaded successfully, valid:', this.form.valid);
+        console.log(' Form loaded successfully, valid:', this.form.valid);
       },
       error: (error) => {
-        console.error('❌ Error loading lettre:', error);
+        console.error(' Error loading lettre:', error);
         alert('Erreur lors du chargement de la lettre de sommation: ' + error.message);
         this.loading = false;
         this.router.navigate(['/lettres-sommation/carte']);
@@ -284,17 +271,17 @@ export class LettreSommationCarteFormComponent implements OnInit {
 
   // Load all trains for dropdown
   loadAllTrains(): void {
-    console.log('🚂 Loading all trains...');
+    console.log(' Loading all trains...');
     this.trainLoading = true;
     
     this.trainService.getAllTrains().subscribe({
       next: (trains) => {
         this.allTrains = trains;
         this.trainLoading = false;
-        console.log('🚂 All trains loaded:', trains.length, 'trains');
+        console.log(' All trains loaded:', trains.length, 'trains');
       },
       error: (err) => {
-        console.error('❌ Error loading trains:', err);
+        console.error(' Error loading trains:', err);
         this.trainLoading = false;
       }
     });
@@ -303,22 +290,21 @@ export class LettreSommationCarteFormComponent implements OnInit {
   // Handle train dropdown selection
   onTrainDropdownSelect(event: any): void {
     const trainId = +event.target.value;
-    console.log('🚂 Train selected from dropdown, ID:', trainId);
+    console.log(' Train selected from dropdown, ID:', trainId);
     
     if (trainId) {
       const selectedTrain = this.allTrains.find(train => train.id === trainId);
       
       if (selectedTrain) {
-        console.log('🚂 Selected train details:', selectedTrain);
+        console.log(' Selected train details:', selectedTrain);
         
-        // Set train form values (gamme is independent, so keep existing value)
         const trainFormValue = {
           id: selectedTrain.id,
           numero: selectedTrain.numero,
-          gamme: this.form.get('train.gamme')?.value || '' // Keep existing gamme value
+          gamme: this.form.get('train.gamme')?.value || '' 
         };
         
-        console.log('📝 Setting train form value:', trainFormValue);
+        console.log(' Setting train form value:', trainFormValue);
         
         this.form.patchValue({
           train: trainFormValue
@@ -328,25 +314,20 @@ export class LettreSommationCarteFormComponent implements OnInit {
         this.form.get('train')?.markAsTouched();
         this.form.get('train.id')?.markAsTouched();
         
-        console.log('🚂 Train form after selection:', this.form.get('train')?.value);
-        console.log('🚂 Train form valid:', this.form.get('train')?.valid);
-        console.log('🚂 Overall form valid:', this.form.valid);
       }
     } else {
-      console.log('🚂 Clearing train selection');
       // Clear train selection but keep gamme
       this.form.patchValue({
         train: {
           id: null,
           numero: '',
-          gamme: this.form.get('train.gamme')?.value || '' // Keep existing gamme value
+          gamme: this.form.get('train.gamme')?.value || '' 
         }
       });
     }
   }
 
   setupTypeaheadSearch(): void {
-    console.log('🔍 Setting up typeahead search...');
     
     // ACT search
     this.actSearch$.pipe(
@@ -355,9 +336,8 @@ export class LettreSommationCarteFormComponent implements OnInit {
       switchMap(term => {
         if (term.length < 3) return of([]);
         this.actSearching = true;
-        console.log('🔍 Searching ACT with term:', term);
+        console.log(' Searching ACT with term:', term);
         
-        // Try to get exact match by matricule first
         if (/^\d+$/.test(term)) {
           return this.actService.getActByMatricule(term).pipe(
             map(act => [act]),
@@ -391,7 +371,7 @@ export class LettreSommationCarteFormComponent implements OnInit {
     ).subscribe(acts => {
       this.filteredActs = acts;
       this.actSearching = false;
-      console.log('🔍 ACT search results:', acts.length, 'found');
+      console.log(' ACT search results:', acts.length, 'found');
     });
 
     // Gare typeahead search
@@ -401,7 +381,7 @@ export class LettreSommationCarteFormComponent implements OnInit {
       switchMap(term => {
         if (term.length < 2) return of([]);
         this.gareSearching = true;
-        console.log('🔍 Searching Gare with term:', term);
+        console.log(' Searching Gare with term:', term);
         
         return this.gareService.getAllGares().pipe(
           map(gares => gares.filter(gare => 
@@ -416,7 +396,7 @@ export class LettreSommationCarteFormComponent implements OnInit {
     ).subscribe(gares => {
       this.filteredGares = gares;
       this.gareSearching = false;
-      console.log('🔍 Gare search results:', gares.length, 'found');
+      console.log(' Gare search results:', gares.length, 'found');
     });
 
     // Gare de règlement typeahead search (same as gare)
@@ -426,7 +406,7 @@ export class LettreSommationCarteFormComponent implements OnInit {
       switchMap(term => {
         if (term.length < 2) return of([]);
         this.gareReglementSearching = true;
-        console.log('🔍 Searching Gare de règlement with term:', term);
+        console.log(' Searching Gare de règlement with term:', term);
         
         return this.gareService.getAllGares().pipe(
           map(gares => gares.filter(gare => 
@@ -441,26 +421,24 @@ export class LettreSommationCarteFormComponent implements OnInit {
     ).subscribe(gares => {
       this.filteredGaresReglement = gares;
       this.gareReglementSearching = false;
-      console.log('🔍 Gare de règlement search results:', gares.length, 'found');
+      console.log(' Gare de règlement search results:', gares.length, 'found');
     });
-    
-    console.log('✅ Typeahead search setup complete');
   }
 
   /* ACT Handling */
   onActInput(event: any): void {
     const value = event.target.value;
-    console.log('👤 ACT input value:', value);
+    console.log(' ACT input value:', value);
     
     if (value && value.length >= 3) {
       this.actSearching = true;
       this.actSearchFailed = false;
       
-      console.log('🔍 Searching for ACT by matricule:', value);
+      console.log(' Searching for ACT by matricule:', value);
       
       this.actService.getActByMatricule(value).subscribe({
         next: (act) => {
-          console.log('👤 ACT found:', act);
+          console.log(' ACT found:', act);
           
           if (act) {
             const actFormValue = {
@@ -470,7 +448,7 @@ export class LettreSommationCarteFormComponent implements OnInit {
               antenne: act.antenne
             };
             
-            console.log('📝 Setting ACT form value:', actFormValue);
+            console.log(' Setting ACT form value:', actFormValue);
             
             this.form.patchValue({
               act: actFormValue
@@ -484,12 +462,9 @@ export class LettreSommationCarteFormComponent implements OnInit {
             this.actSearching = false;
             this.filteredActs = [];
             
-            console.log('👤 ACT form after input:', this.form.get('act')?.value);
-            console.log('👤 ACT form valid:', this.form.get('act')?.valid);
           }
         },
         error: (err) => {
-          console.log('❌ ACT not found by matricule, trying search all...');
           this.actSearching = false;
           this.actSearchFailed = true;
           
@@ -513,18 +488,13 @@ export class LettreSommationCarteFormComponent implements OnInit {
     }
   }
 
-  private searchAllActs(searchTerm: string): void {
-    console.log('🔍 Falling back to searching all ACTs...');
-    
+  private searchAllActs(searchTerm: string): void {    
     this.actService.getAllActs().subscribe({
       next: (acts) => {
         this.filteredActs = acts.filter(act => 
           act.matricule.toLowerCase().includes(searchTerm.toLowerCase()) || 
           act.nomPrenom.toLowerCase().includes(searchTerm.toLowerCase())
-        );
-        
-        console.log(`🔍 Found ${this.filteredActs.length} ACTs matching "${searchTerm}"`);
-        
+        );        
         if (this.filteredActs.length === 0) {
           this.actSearchFailed = true;
           setTimeout(() => {
@@ -533,7 +503,6 @@ export class LettreSommationCarteFormComponent implements OnInit {
         }
       },
       error: (err) => {
-        console.error('❌ Error searching all ACTs:', err);
         this.actSearchFailed = true;
         setTimeout(() => {
           this.actSearchFailed = false;
@@ -542,52 +511,33 @@ export class LettreSommationCarteFormComponent implements OnInit {
     });
   }
   
-  onActSelect(act: any): void {
-    console.log('👤 ACT selected:', act);
-    
+  onActSelect(act: any): void {    
     const actFormValue = {
       id: act.id || null,
       matricule: act.matricule || '',
       nomPrenom: act.nomPrenom || '',
       antenne: act.antenne || null
-    };
-    
-    console.log('📝 Setting selected ACT form value:', actFormValue);
-    
+    };    
     this.form.patchValue({
       act: actFormValue
     });
     
     this.filteredActs = [];
     
-    // Manually mark the act group as touched to trigger validation
     this.form.get('act')?.markAsTouched();
     this.form.get('act.id')?.markAsTouched();
     this.form.get('act.matricule')?.markAsTouched();
-    
-    console.log('👤 After ACT selection - form value:', this.form.get('act')?.value);
-    console.log('👤 After ACT selection - form valid:', this.form.get('act')?.valid);
-    console.log('👤 After ACT selection - overall form valid:', this.form.valid);
   }
 
-  // Replace your onGareSelect method with this:
 onGareSelect(gare: any): void {
-  console.log('🏢 Gare selected:', gare);
-  
-  // Debug: Check if gare has an id
-  console.log('🏢 Gare ID:', gare.id);
-  console.log('🏢 Gare object keys:', Object.keys(gare));
-  
   if (!gare.id) {
     console.error('❌ Selected gare has no ID:', gare);
     alert('Erreur: La gare sélectionnée n\'a pas d\'identifiant valide');
     return;
   }
-  
-  // Update the form with the selected gare
-  this.form.patchValue({
+    this.form.patchValue({
     gare: {
-      id: gare.id,  // This is the critical missing piece
+      id: gare.id,  
       nom: gare.nom || '',
       gareReglement: this.form.get('gare.gareReglement')?.value || ''
     }
@@ -600,16 +550,10 @@ onGareSelect(gare: any): void {
   this.form.get('gare')?.markAsTouched();
   this.form.get('gare.id')?.markAsTouched();
   this.form.get('gare.nom')?.markAsTouched();
-  
-  // Debug after selection
-  console.log('🏢 Form gare value after selection:', this.form.get('gare')?.value);
-  console.log('🏢 Gare ID in form:', this.form.get('gare.id')?.value);
-  console.log('🏢 Form valid after gare selection:', this.form.valid);
 }
 
 onGareInput(event: any): void {
   const value = event.target.value;
-  console.log('🏢 Gare input value:', value);
   
   if (value && value.length >= 2) {
     this.gareSearch$.next(value);
@@ -630,9 +574,7 @@ onGareInput(event: any): void {
 
   /* Gare de règlement Handling */
   onGareReglementInput(event: any): void {
-    const value = event.target.value;
-    console.log('🏢 Gare de règlement input value:', value);
-    
+    const value = event.target.value;    
     if (value && value.length >= 2) {
       this.gareReglementSearch$.next(value);
     } else {
@@ -640,137 +582,43 @@ onGareInput(event: any): void {
     }
   }
   
-  onGareReglementSelect(gare: any): void {
-    console.log('🏢 Gare de règlement selected:', gare);
-    
+  onGareReglementSelect(gare: any): void {    
     this.form.patchValue({
       gare: {
         gareReglement: gare.nom
       }
     });
     this.filteredGaresReglement = [];
-    
-    console.log('🏢 After Gare de règlement selection - form value:', this.form.get('gare')?.value);
-  }
+      }
 
   /* File Handling */
   onFileSelected(event: any): void {
-    const files = event.target.files;
-    console.log('📎 Files selected:', files.length);
-    
+    const files = event.target.files;    
     for (let i = 0; i < files.length; i++) {
-      const file = files[i];
-      
-      console.log('📎 Processing file:', file.name, 'Size:', file.size);
-      
+      const file = files[i];      
       if (file.size > this.maxFileSize) {
-        console.log('❌ File too large:', file.name);
         alert(`Le fichier ${file.name} est trop volumineux. Taille maximale: 5MB`);
         continue;
       }
       
       this.selectedFiles.push(file);
-      console.log('✅ File added:', file.name);
     }
-    
-    console.log('📎 Total selected files:', this.selectedFiles.length);
-  }
+    }
 
   removeFile(index: number): void {
     const fileName = this.selectedFiles[index].name;
     this.selectedFiles.splice(index, 1);
-    console.log('🗑️ File removed:', fileName);
-    console.log('📎 Remaining files:', this.selectedFiles.length);
   }
 
-  // ===== DEBUG METHOD =====
-  debugForm(): void {
-    console.log('🐛 ===== FORM DEBUG =====');
-    console.log('🐛 Form valid:', this.form.valid);
-    console.log('🐛 Form touched:', this.form.touched);
-    console.log('🐛 Form dirty:', this.form.dirty);
-    console.log('🐛 Form value:', this.form.value);
-    console.log('🐛 Form errors:', this.getFormValidationErrors());
-    
-    // Check each main group
-    console.log('🐛 === ACT GROUP ===');
-    console.log('🐛 ACT group valid:', this.form.get('act')?.valid);
-    console.log('🐛 ACT group errors:', this.form.get('act')?.errors);
-    console.log('🐛 ACT ID:', this.form.get('act.id')?.value);
-    console.log('🐛 ACT ID valid:', this.form.get('act.id')?.valid);
-    console.log('🐛 ACT ID errors:', this.form.get('act.id')?.errors);
-    console.log('🐛 ACT matricule:', this.form.get('act.matricule')?.value);
-    console.log('🐛 ACT matricule valid:', this.form.get('act.matricule')?.valid);
-    console.log('🐛 ACT matricule errors:', this.form.get('act.matricule')?.errors);
-    
-    console.log('🐛 === TRAIN GROUP ===');
-    console.log('🐛 Train group valid:', this.form.get('train')?.valid);
-    console.log('🐛 Train group errors:', this.form.get('train')?.errors);
-    console.log('🐛 Train ID:', this.form.get('train.id')?.value);
-    console.log('🐛 Train ID valid:', this.form.get('train.id')?.valid);
-    console.log('🐛 Train ID errors:', this.form.get('train.id')?.errors);
-    
-    console.log('🐛 === GARE GROUP ===');
-    console.log('🐛 Gare group valid:', this.form.get('gare')?.valid);
-    console.log('🐛 Gare group errors:', this.form.get('gare')?.errors);
-    console.log('🐛 Gare ID:', this.form.get('gare.id')?.value);
-    console.log('🐛 Gare ID valid:', this.form.get('gare.id')?.valid);
-    console.log('🐛 Gare ID errors:', this.form.get('gare.id')?.errors);
-    console.log('🐛 Gare nom:', this.form.get('gare.nom')?.value);
-    console.log('🐛 Gare nom valid:', this.form.get('gare.nom')?.valid);
-    console.log('🐛 Gare nom errors:', this.form.get('gare.nom')?.errors);
-    
-    console.log('🐛 === OTHER FIELDS ===');
-    console.log('🐛 Date creation valid:', this.form.get('dateCreation')?.valid);
-    console.log('🐛 Date creation errors:', this.form.get('dateCreation')?.errors);
-    console.log('🐛 Date infraction valid:', this.form.get('dateInfraction')?.valid);
-    console.log('🐛 Date infraction errors:', this.form.get('dateInfraction')?.errors);
-    console.log('🐛 Statut valid:', this.form.get('statut')?.valid);
-    console.log('🐛 Statut errors:', this.form.get('statut')?.errors);
-    console.log('🐛 Montant amende valid:', this.form.get('montantAmende')?.valid);
-    console.log('🐛 Montant amende errors:', this.form.get('montantAmende')?.errors);
-    console.log('🐛 Type carte valid:', this.form.get('typeCarte')?.valid);
-    console.log('🐛 Type carte errors:', this.form.get('typeCarte')?.errors);
-    console.log('🐛 Numero carte valid:', this.form.get('numeroCarte')?.valid);
-    console.log('🐛 Numero carte errors:', this.form.get('numeroCarte')?.errors);
-    
-    // Check permissions
-    console.log('🐛 === PERMISSIONS ===');
-    console.log('🐛 Can create:', this.canCreate);
-    console.log('🐛 Can update:', this.canUpdate);
-    console.log('🐛 Can edit this document:', this.canEditThisDocument);
-    console.log('🐛 Is edit mode:', this.isEditMode);
-    console.log('🐛 Submitting:', this.submitting);
-    
-    // Button condition check
-    const buttonDisabled = this.submitting || this.form.invalid || (!this.isEditMode && !this.canCreate) || (this.isEditMode && !this.canEditThisDocument);
-    
-    console.log('🐛 === BUTTON STATE ===');
-    console.log('🐛 Button disabled:', buttonDisabled);
-    console.log('🐛 - submitting:', this.submitting);
-    console.log('🐛 - form.invalid:', this.form.invalid);
-    console.log('🐛 - (!isEditMode && !canCreate):', (!this.isEditMode && !this.canCreate));
-    console.log('🐛 - (isEditMode && !canEditThisDocument):', (this.isEditMode && !this.canEditThisDocument));
-    
-    console.log('🐛 ===== END DEBUG =====');
-  }
-
-  /* Form Submission */
  /* Form Submission */
 onSubmit(): void {
-  console.log('🚀 ===== FORM SUBMISSION =====');
-  console.log('🚀 Form submitted, valid:', this.form.valid);
-  console.log('🚀 Form values:', this.form.value);
-  
   // Check permissions before submission
   if (this.isEditMode && !this.canEditThisDocument) {
-    console.log('❌ No permission to edit this document');
     alert(this.getAccessDeniedMessage('edit'));
     return;
   }
   
   if (!this.isEditMode && !this.canCreate) {
-    console.log('❌ No permission to create');
     alert(this.getAccessDeniedMessage('create'));
     return;
   }
@@ -778,9 +626,6 @@ onSubmit(): void {
   this.markFormGroupTouched(this.form);
   
   if (this.form.invalid) {
-    console.error('❌ Form is invalid. Cannot submit.');
-    console.error('❌ Form errors:', this.getFormValidationErrors());
-    
     const invalidFields = [];
     
     if (this.form.get('act.id')?.invalid) invalidFields.push('Agent ID');
@@ -804,12 +649,10 @@ onSubmit(): void {
       if (this.form.get('numeroPpRegularisation')?.invalid) invalidFields.push('Numéro PP régularisation');
     }
     
-    console.error('❌ Invalid fields:', invalidFields);
     alert(`Veuillez remplir tous les champs obligatoires:\n\n${invalidFields.join('\n')}`);
     return;
   }
   
-  console.log('✅ Form is valid, proceeding with submission...');
   this.submitting = true;
   
   // Prepare data object for submission
@@ -837,13 +680,8 @@ onSubmit(): void {
     }
   }
   
-  console.log('🚀 Submitting form data:', lettreCarte);
-  console.log('🚀 Files count:', this.selectedFiles.length);
-  
-  // *** FIXED FORMDATA CONSTRUCTION FOR SPRING BOOT ***
   const formData = new FormData();
   
-  // Add the JSON data as a Blob with the correct part name "lettre"
   const lettreBlob = new Blob([JSON.stringify(lettreCarte)], {
     type: 'application/json'
   });
@@ -854,89 +692,52 @@ onSubmit(): void {
     this.selectedFiles.forEach((file) => {
       formData.append('fichiers', file);
     });
-    console.log('📎 Added', this.selectedFiles.length, 'files to formData');
   } else {
-    console.log('📎 No files to upload');
+    console.log(' No files to upload');
   }
-  
-  // Debug: Log FormData contents
-  console.log('📦 FormData contents:');
-  for (let pair of formData.entries()) {
-    const value = pair[1];
-    if (value && typeof value === 'object' && 'name' in value && 'size' in value) {
-      // It's a File
-      const file = value as File;
-      console.log('📦', pair[0], '→ File:', file.name, 'Size:', file.size);
-    } else if (value && typeof value === 'object' && 'size' in value) {
-      // It's a Blob
-      const blob = value as Blob;
-      console.log('📦', pair[0], '→ Blob, Size:', blob.size);
-    } else {
-      console.log('📦', pair[0], '→', value);
-    }
-  }
-  
-  // Validate required IDs before sending
-  console.log('✏️ ID Validation:');
-  console.log('✏️ - actId:', lettreCarte.actId, 'type:', typeof lettreCarte.actId);
-  console.log('✏️ - trainId:', lettreCarte.trainId, 'type:', typeof lettreCarte.trainId);
-  console.log('✏️ - gareId:', lettreCarte.gareId, 'type:', typeof lettreCarte.gareId);
-  
+    
+
   // Check for potential data issues
   if (!lettreCarte.actId || !lettreCarte.trainId || !lettreCarte.gareId) {
-    console.error('❌ Missing required IDs!');
+    console.error(' Missing required IDs!');
     alert('Erreur: Des identifiants requis sont manquants (ACT, Train, ou Gare)');
     this.submitting = false;
     return;
   }
   
   if (this.isEditMode && this.lettreId) {
-    console.log('✏️ === EDIT MODE ===');
-    console.log('✏️ Updating existing lettre with ID:', this.lettreId);
-    console.log('✏️ Current user:', this.currentUser);
-    console.log('✏️ Can edit this document:', this.canEditThisDocument);
-    console.log('✏️ Update URL:', `/lettres-sommation-carte/${this.lettreId}`);
     
     this.lettreSommationCarteService.updateLettreSommationCarte(this.lettreId, formData).subscribe({
       next: (response) => {
-        console.log('✅ Update successful:', response);
+        console.log(' Update successful:', response);
         alert('Lettre de sommation mise à jour avec succès');
         this.submitting = false;
         this.router.navigate(['/lettres-sommation/carte']);
       },
       error: (error) => {
-        console.error('❌ === DETAILED UPDATE ERROR ===');
-        console.error('❌ Full error object:', error);
-        console.error('❌ Status:', error.status);
-        console.error('❌ Status Text:', error.statusText);
-        console.error('❌ Error.error:', error.error);
-        console.error('❌ Error.message:', error.message);
-        console.error('❌ Error.name:', error.name);
-        console.error('❌ Error.url:', error.url);
+        console.error(' === DETAILED UPDATE ERROR ===');
+        console.error(' Full error object:', error);
+        console.error(' Status:', error.status);
+        console.error(' Status Text:', error.statusText);
+        console.error(' Error.error:', error.error);
+        console.error(' Error.message:', error.message);
+        console.error(' Error.name:', error.name);
+        console.error(' Error.url:', error.url);
         
         // Try to extract more details from the error
         if (error.error) {
-          console.error('❌ Server response body:', error.error);
+          console.error(' Server response body:', error.error);
           if (typeof error.error === 'string') {
-            console.error('❌ Server response as string:', error.error);
+            console.error(' Server response as string:', error.error);
           }
           if (error.error.message) {
-            console.error('❌ Server error message:', error.error.message);
+            console.error(' Server error message:', error.error.message);
           }
           if (error.error.details) {
-            console.error('❌ Server error details:', error.error.details);
+            console.error(' Server error details:', error.error.details);
           }
         }
         
-        // Log the request details for debugging
-        console.error('❌ Request details:');
-        console.error('❌ - Lettre ID:', this.lettreId);
-        console.error('❌ - Current user ID:', this.currentUser?.id);
-        console.error('❌ - User role:', this.currentUser?.role);
-        console.error('❌ - Can edit document:', this.canEditThisDocument);
-        console.error('❌ - Data sent:', lettreCarte);
-        
-        // Check specific error cases and provide better error messages
         let errorMessage = 'Erreur lors de la mise à jour';
         let detailedMessage = '';
         
@@ -985,24 +786,24 @@ onSubmit(): void {
       }
     });
   } else {
-    console.log('➕ === CREATE MODE ===');
-    console.log('➕ Creating new lettre');
-    console.log('➕ Data being sent:', lettreCarte);
+    console.log(' === CREATE MODE ===');
+    console.log(' Creating new lettre');
+    console.log(' Data being sent:', lettreCarte);
     
     this.lettreSommationCarteService.createLettreSommationCarte(formData).subscribe({
       next: (response) => {
-        console.log('✅ Creation successful:', response);
+        console.log(' Creation successful:', response);
         alert('Lettre de sommation créée avec succès');
         this.submitting = false;
         this.router.navigate(['/lettres-sommation/carte']);
       },
       error: (error) => {
-        console.error('❌ === DETAILED CREATION ERROR ===');
-        console.error('❌ Full error object:', error);
-        console.error('❌ Status:', error.status);
-        console.error('❌ Status Text:', error.statusText);
-        console.error('❌ Error.error:', error.error);
-        console.error('❌ Error.message:', error.message);
+        console.error(' === DETAILED CREATION ERROR ===');
+        console.error(' Full error object:', error);
+        console.error(' Status:', error.status);
+        console.error(' Status Text:', error.statusText);
+        console.error(' Error.error:', error.error);
+        console.error(' Error.message:', error.message);
         
         let errorMessage = 'Erreur lors de la création';
         if (error.status === 400) {
@@ -1044,12 +845,12 @@ onSubmit(): void {
   }
 
   cancel(): void {
-    console.log('❌ Form cancelled');
+    console.log(' Form cancelled');
     this.router.navigate(['/lettres-sommation/carte']);
   }
 
   markFormGroupTouched(formGroup: FormGroup) {
-    console.log('👆 Marking form group as touched');
+    console.log(' Marking form group as touched');
     Object.values(formGroup.controls).forEach(control => {
       control.markAsTouched();
       

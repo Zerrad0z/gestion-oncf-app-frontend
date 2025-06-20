@@ -1,4 +1,3 @@
-// src/app/core/models/train.model.ts
 export interface Train {
   id: number;
   numero: string;

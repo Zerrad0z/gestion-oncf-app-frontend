@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
-import { AuthHttpService } from './auth-http.service'; // ✅ Use AuthHttpService instead of HttpClient
-import { AuthService } from './auth.service'; // ✅ Add AuthService for permission checks
+import { AuthHttpService } from './auth-http.service';
+import { AuthService } from './auth.service'; 
 import { RapportM, RapportMRequest, BulkUpdateStatusRequest } from '../core/models/rapportM.model';
 import { CategorieRapportEnum } from '../core/models/CategorieRapportEnum.model';
 import { environment } from '../../environments/environment';
@@ -13,14 +13,14 @@ import { environment } from '../../environments/environment';
 export class RapportMService {
 
   constructor(
-    private authHttp: AuthHttpService, // ✅ Changed from HttpClient to AuthHttpService
-    private authService: AuthService   // ✅ Added for permission checks
+    private authHttp: AuthHttpService, 
+    private authService: AuthService   
   ) {
     console.log('RapportMService initialized with API URL:', environment.apiUrl);
   }
 
   getAllRapportsM(): Observable<RapportM[]> {
-    return this.authHttp.get<RapportM[]>('/rapports-m'); // ✅ Using AuthHttpService
+    return this.authHttp.get<RapportM[]>('/rapports-m'); 
   }
 
   getRapportMById(id: number): Observable<RapportM> {
@@ -31,14 +31,14 @@ export class RapportMService {
     if (!this.canCreate()) {
       return throwError(() => new Error('Vous n\'avez pas les droits pour créer des rapports'));
     }
-    return this.authHttp.upload<RapportM>('/rapports-m', formData); // ✅ Using upload method
+    return this.authHttp.upload<RapportM>('/rapports-m', formData); 
   }
 
   updateRapportM(id: number, formData: FormData): Observable<RapportM> {
     if (!this.canUpdate()) {
       return throwError(() => new Error('Vous n\'avez pas les droits pour modifier des rapports'));
     }
-    return this.authHttp.uploadPut<RapportM>(`/rapports-m/${id}`, formData); // ✅ Using uploadPut method
+    return this.authHttp.uploadPut<RapportM>(`/rapports-m/${id}`, formData); 
   }
 
   deleteRapportM(id: number): Observable<void> {
@@ -57,7 +57,7 @@ export class RapportMService {
     dateDebut?: string,
     dateFin?: string
   ): Observable<RapportM[]> {
-    const params: any = {}; // ✅ Using object instead of HttpParams
+    const params: any = {}; 
     
     if (actId) params.actId = actId;
     if (categorie) params.categorie = categorie;
@@ -104,7 +104,6 @@ export class RapportMService {
     );
   }
 
-  // ✅ Added permission check methods (like in LettreSommationCarteService)
   canCreate(): boolean {
     return this.authService.isEncadrant() || this.authService.isAdmin();
   }

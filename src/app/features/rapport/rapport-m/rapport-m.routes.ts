@@ -2,7 +2,6 @@ import { Routes } from '@angular/router';
 
 export const RAPPORT_ROUTES: Routes = [
   
-  // Rapport M routes - these will be accessible at /rapport/rapport-m
   {
     path: 'rapport-m',
     loadComponent: () => import('./rapport-m-list/rapport-m-list.component')

@@ -41,19 +41,19 @@ export const LETTRE_SOMMATION_ROUTES: Routes = [
   {
   path: 'carte/create',
   loadComponent: () => {
-    console.log('🔍 Attempting to load form component...');
-    console.log('📁 Current working directory:', window.location.origin);
-    console.log('📁 Trying to import from: ./lettre-sommation-carte-form/lettre-sommation-carte-form.component');
+    console.log(' Attempting to load form component...');
+    console.log(' Current working directory:', window.location.origin);
+    console.log(' Trying to import from: ./lettre-sommation-carte-form/lettre-sommation-carte-form.component');
     
     return import('./lettre-sommation-carte-form/lettre-sommation-carte-form.component')
       .then(m => {
-        console.log('✅ Import successful!', m);
-        console.log('🎯 Component:', m.LettreSommationCarteFormComponent);
+        console.log(' Import successful!', m);
+        console.log(' Component:', m.LettreSommationCarteFormComponent);
         return m.LettreSommationCarteFormComponent;
       })
       .catch(error => {
-        console.error('❌ Import FAILED:', error);
-        console.error('📁 Check if this file exists: src/app/features/lettre-sommation/lettre-sommation-carte-form/lettre-sommation-carte-form.component.ts');
+        console.error(' Import FAILED:', error);
+        console.error(' Check if this file exists: src/app/features/lettre-sommation/lettre-sommation-carte-form/lettre-sommation-carte-form.component.ts');
         throw error;
       });
   }

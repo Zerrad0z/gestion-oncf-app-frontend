@@ -51,11 +51,10 @@ export class LettreSommationBilletFormComponent implements OnInit {
   
   // Dropdown data
   statuts = [StatutEnum.REGULARISEE, StatutEnum.NON_REGULARISEE];
-  gammesTrains = ['TNR', 'TN', 'TGV'];
+  gammesTrains = ['TNR', 'TL', 'TGV'];
   
   // Train gamme mapping for determining gamme from train number
   trainGammeMapping: { [key: string]: string } = {
-    // Add your specific train numbers here if needed
   };
   
   // Filtered options
@@ -122,7 +121,6 @@ export class LettreSommationBilletFormComponent implements OnInit {
       numeroPiecePaiement: ['']
     });
     
-    // Add listener for status changes to handle regularization fields
     this.form.get('statut')?.valueChanges.subscribe(value => {
       if (value === 'REGULARISEE') {
         this.form.get('dateRegularisation')?.setValidators([Validators.required]);
@@ -200,7 +198,7 @@ export class LettreSommationBilletFormComponent implements OnInit {
     }
     
     if (trainNumero?.startsWith('TNR')) return 'TNR';
-    if (trainNumero?.startsWith('TN')) return 'TN';
+    if (trainNumero?.startsWith('TN')) return 'TL';
     if (trainNumero?.startsWith('TGV')) return 'TGV';
     
     return '';
@@ -403,7 +401,6 @@ export class LettreSommationBilletFormComponent implements OnInit {
 
   onTrainGammeChange(event: any): void {
     const gamme = event.target.value;
-    // Just update the gamme field - NO relationship to train selection
     this.form.patchValue({
       train: {
         id: this.form.get('train.id')?.value,
@@ -454,9 +451,7 @@ export class LettreSommationBilletFormComponent implements OnInit {
     if (!train?.id) {
       return;
     }
-    
-    // Just select the train - DON'T change the gamme
-    this.form.patchValue({
+        this.form.patchValue({
       train: {
         id: train.id,
         numero: train.numero,

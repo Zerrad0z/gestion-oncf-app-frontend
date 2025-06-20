@@ -133,15 +133,12 @@ export class LettreSommationCarteDetailComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result && this.lettreId && this.lettre) {
-        // Create a copy of the current lettre with the new status
         const updatedLettre = {
           ...this.lettre,
           statut: newStatut,
           dateTraitement: newStatut === StatutEnum.REGULARISEE ? new Date().toISOString().split('T')[0] : this.lettre.dateTraitement
         };
         
-        // Note: You'll need to implement this method in the service or use a different approach
-        // For now, I'll use a FormData approach similar to the create/update
         const formData = new FormData();
         formData.append('lettre', new Blob([JSON.stringify({
           actId: this.lettre.act.id,
@@ -173,8 +170,6 @@ export class LettreSommationCarteDetailComponent implements OnInit {
       }
     });
   }
-
-  // Enhanced file handling methods
   
   /**
    * View file - handles different file types appropriately

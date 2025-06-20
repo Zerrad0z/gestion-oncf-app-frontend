@@ -30,7 +30,6 @@ export class LoginComponent implements OnInit {
   ngOnInit(): void {
     this.initForm();
     
-    // Get return URL from route parameters or default to '/dashboard'
     this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/dashboard';
   }
 

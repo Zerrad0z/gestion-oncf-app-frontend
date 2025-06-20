@@ -1,4 +1,3 @@
-// src/app/features/administration/users/user-history/user-history.component.ts
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';

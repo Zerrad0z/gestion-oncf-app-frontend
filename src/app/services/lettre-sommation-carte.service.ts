@@ -1,4 +1,3 @@
-// src/app/services/lettre-sommation-carte.service.ts
 import { Injectable } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
 import { AuthHttpService } from './auth-http.service';
